@@ -9,11 +9,17 @@ type Props = { s:any; C:any; welcomeCarBg:any; appLogo:any; insets:any; role:str
 export default function AuthScreen(p:Props){
  const {s,C,welcomeCarBg,appLogo,insets,role,authMode,setAuthMode,setScreen,name,setName,phone,setPhone,dealerName,setDealerName,email,setEmail,password,setPassword,loading,authenticate}=p;
  const [confirmPassword,setConfirmPassword]=useState('');
- const [acceptedTerms,setAcceptedTerms]=useState(false);\n const [signupStep,setSignupStep]=useState(1);
+ const [acceptedTerms,setAcceptedTerms]=useState(false);
+ const [signupStep,setSignupStep]=useState(1);
  const [showPassword,setShowPassword]=useState(false);
  const signup=authMode==='signup';
  const forgot=authMode==='forgot';
  const submit=()=>{
+  if(signup && signupStep===1){
+   if(!name.trim() || !phone.trim() || (role==='Dealer'&&!dealerName.trim())){Alert.alert('Complete your details','Please fill in all required personal details before continuing.');return;}
+   setSignupStep(2);
+   return;
+  }
   if(signup){
    if(password!==confirmPassword){Alert.alert('Passwords do not match','Please enter the same password in both fields.');return;}
    if(!acceptedTerms){Alert.alert('Terms and conditions','Please accept the Terms & Conditions and Privacy Policy to continue.');return;}
@@ -25,19 +31,23 @@ export default function AuthScreen(p:Props){
  <Pressable onPress={()=>setScreen('role')} style={styles.back}><Ionicons name="chevron-back" color="#F4F8F6" size={21}/></Pressable>
  <View style={styles.brandBlock}><Image source={appLogo} style={styles.logo} resizeMode="contain"/><Text style={styles.brandHeading}>SM ASSOCIATE <Text style={styles.brandAccent}>CARS</Text></Text><Text style={styles.brandEyebrow}>YOUR NEXT DRIVE STARTS HERE</Text><View style={styles.roleBadge}><Ionicons name={role==='Dealer'?'business-outline':'person-outline'} size={13} color="#31E6B4"/><Text style={styles.roleBadgeText}>{role}</Text></View><Text style={styles.brandDescription}>{signup ? "Create your account and discover a more confident way to buy and sell." : forgot ? "Recover access to your account securely." : "Welcome back. Your next great drive starts here."}</Text></View>{!signup&&!forgot?<View style={styles.signInShowcase}><View style={styles.showcaseTop}><View style={styles.showcaseIcon}><Ionicons name="shield-checkmark-outline" size={20} color="#31E6B4"/></View><View style={styles.showcaseCopy}><Text style={styles.showcaseTitle}>Your next drive awaits.</Text><Text style={styles.showcaseSubtitle}>Sign in to pick up where you left off.</Text></View><Ionicons name="sparkles-outline" size={18} color="rgba(49,230,180,.8)"/></View><View style={styles.showcaseDivider}/><View style={styles.benefitRow}><View style={styles.benefitItem}><Ionicons name="car-sport-outline" size={16} color="#31E6B4"/><Text style={styles.benefitText}>Discover cars</Text></View><View style={styles.benefitItem}><Ionicons name="heart-outline" size={16} color="#31E6B4"/><Text style={styles.benefitText}>Save favourites</Text></View><View style={styles.benefitItem}><Ionicons name="chatbubble-ellipses-outline" size={16} color="#31E6B4"/><Text style={styles.benefitText}>Connect easily</Text></View></View></View>:null}<View style={[styles.heroSpace,!signup&&!forgot&&styles.heroSpaceCompact]}/>
  <View style={styles.form}>
-  {signup?<>
+  {signup?<View style={styles.stepper}><View style={styles.stepTrack}><View style={[styles.stepProgress,signupStep===2&&styles.stepProgressFull]}/></View><View style={styles.stepLabels}><View style={styles.stepLabelGroup}><View style={[styles.stepNumber,signupStep>=1&&styles.stepNumberActive]}><Text style={[styles.stepNumberText,signupStep>=1&&styles.stepNumberTextActive]}>{signupStep>1?'✓':'1'}</Text></View><View><Text style={[styles.stepTitle,signupStep===1&&styles.stepTitleActive]}>Personal details</Text><Text style={styles.stepHint}>Your basic information</Text></View></View><View style={styles.stepLabelGroup}><View style={[styles.stepNumber,signupStep===2&&styles.stepNumberActive]}><Text style={[styles.stepNumberText,signupStep===2&&styles.stepNumberTextActive]}>2</Text></View><View><Text style={[styles.stepTitle,signupStep===2&&styles.stepTitleActive]}>Account setup</Text><Text style={styles.stepHint}>Secure your account</Text></View></View></View></View>:null}
+  {signup&&signupStep===1?<>
    {field('Full name',name,setName,'Your full name',{icon:'person-outline'})}
    {field('Mobile number',phone,setPhone,'Mobile number',{icon:'call-outline',keyboardType:'phone-pad'})}
    {role==='Dealer'?field('Dealership name',dealerName,setDealerName,'Dealership name',{icon:'business-outline'}):null}
   </>:null}
-  {field('Email address',email,setEmail,'you@example.com',{icon:'mail-outline',keyboardType:'email-address',autoCapitalize:'none'})}
-  {!forgot?field(signup?'New Password':'Password',password,setPassword,signup?'Create a password':'Enter your password',{icon:'lock-closed-outline',secure:true}):null}
-  {signup?field('Confirm Password',confirmPassword,setConfirmPassword,'Re-enter password',{icon:'lock-closed-outline',secure:true}):null}
-  {signup?<Pressable onPress={()=>setAcceptedTerms(v=>!v)} style={styles.termsRow}><View style={[styles.checkbox,acceptedTerms&&styles.checkboxActive]}>{acceptedTerms?<Ionicons name="checkmark" size={12} color="#06110D"/>:null}</View><Text style={styles.termsText}>I agree to all <Text style={styles.termsAccent}>Terms & Conditions</Text> and <Text style={styles.termsAccent}>Privacy Policy</Text></Text></Pressable>:null}
+  {(!signup||signupStep===2)?<>
+   {field('Email address',email,setEmail,'you@example.com',{icon:'mail-outline',keyboardType:'email-address',autoCapitalize:'none'})}
+   {!forgot?field(signup?'New Password':'Password',password,setPassword,signup?'Create a password':'Enter your password',{icon:'lock-closed-outline',secure:true}):null}
+   {signup?field('Confirm Password',confirmPassword,setConfirmPassword,'Re-enter password',{icon:'lock-closed-outline',secure:true}):null}
+   {signup?<Pressable onPress={()=>setAcceptedTerms(v=>!v)} style={styles.termsRow}><View style={[styles.checkbox,acceptedTerms&&styles.checkboxActive]}>{acceptedTerms?<Ionicons name="checkmark" size={12} color="#06110D"/>:null}</View><Text style={styles.termsText}>I agree to all <Text style={styles.termsAccent}>Terms & Conditions</Text> and <Text style={styles.termsAccent}>Privacy Policy</Text></Text></Pressable>:null}
+  </>:null}
   {!signup&&!forgot?<Pressable onPress={()=>{setAuthMode('forgot');setScreen('forgot')}} style={styles.forgot}><Text style={styles.tealText}>Forgot password?</Text></Pressable>:null}
   <Pressable disabled={loading} onPress={submit} style={({pressed})=>[styles.submit,pressed&&{opacity:.86},loading&&{opacity:.65}]}><LinearGradient colors={['#20F4AD','#00D995','#00B77D']} start={{x:0,y:0}} end={{x:1,y:1}} style={styles.submitGradient}><Text style={styles.submitText}>{loading?'Please wait…':signup?(signupStep===1?'Continue to account setup':'Create Account'):forgot?'Continue':'Sign In'}</Text></LinearGradient></Pressable>
   {!forgot&&!signup?<><View style={styles.dividerRow}><View style={styles.rule}/><Text style={styles.orText}>or continue with</Text><View style={styles.rule}/></View><View style={styles.socialRow}><Pressable onPress={()=>Alert.alert('Google sign-in','Google sign-in will be available when OAuth is configured.')} style={styles.socialButton}><MaterialCommunityIcons name="google" size={17} color="#4285F4"/><Text style={styles.socialText}>Google</Text></Pressable><Pressable onPress={()=>Alert.alert('Facebook sign-in','Facebook sign-in will be available when OAuth is configured.')} style={styles.socialButton}><MaterialCommunityIcons name="facebook" size={18} color="#4296FF"/><Text style={styles.socialText}>Facebook</Text></Pressable></View></>:null}
-  {signup&&signupStep===2?<Pressable onPress={()=>setSignupStep(1)} style={styles.stepBack}><Ionicons name="arrow-back" size={14} color="#31E6B4"/><Text style={styles.stepBackText}>Back to personal details</Text></Pressable>:null}\n  <View style={styles.footerRow}><Text style={styles.footerText}>{signup?'Already have an account?':forgot?'Remember your password?':"Don't have an account?"} </Text><Pressable onPress={()=>{setConfirmPassword('');setAcceptedTerms(false);const next=signup||forgot?'signin':'signup';setAuthMode(next);setScreen(next)}}><Text style={styles.footerLink}>{signup||forgot?'Go to Sign In':'Go to Sign Up'}</Text></Pressable></View>
+  {signup&&signupStep===2?<Pressable onPress={()=>setSignupStep(1)} style={styles.stepBack}><Ionicons name="arrow-back" size={14} color="#31E6B4"/><Text style={styles.stepBackText}>Back to personal details</Text></Pressable>:null}
+  <View style={styles.footerRow}><Text style={styles.footerText}>{signup?'Already have an account?':forgot?'Remember your password?':"Don't have an account?"} </Text><Pressable onPress={()=>{setConfirmPassword('');setAcceptedTerms(false);const next=signup||forgot?'signin':'signup';setAuthMode(next);setScreen(next)}}><Text style={styles.footerLink}>{signup||forgot?'Go to Sign In':'Go to Sign Up'}</Text></Pressable></View>
  </View>
  </ScrollView></KeyboardAvoidingView></SafeAreaView>;
 }
