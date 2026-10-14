@@ -11,8 +11,8 @@
 
 ## Expo SDK 57 status (2026-10-14)
 
-- `package.json` targets Expo `~57.0.38`, React `19.2.3`, and React Native `0.86.3`, matching the SDK 57 compatibility table.
+- `package.json` targets Expo `~57.0.28`, React `19.2.3`, and React Native `0.86.3`, matching the SDK 57 compatibility table.
 - `app.json` does not pin `sdkVersion`; Expo resolves SDK from the installed `expo` package.
-- The Expo SDK core versions have been updated on `main`. Existing Expo modules still carry older SDK versions and must be aligned using `npx expo install --fix` after `npm install`.
+- The Expo SDK core versions have been updated on `main`. The previously configured `~57.0.38` does not exist on npm; it has been corrected to the published SDK 57 release `~57.0.28`. Existing Expo modules still carry older SDK versions and must be aligned using `npx expo install --fix` after `npm install`.
 - No lockfile is currently tracked in the repository. Commit the generated lockfile after dependency resolution so installs are reproducible.
 - Dependency installation, Expo Doctor, Android build, and device/runtime verification have not been completed in this environment.
