@@ -6,7 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
-import welcomeCarBg from './assets/welcome-car-bg.jpg';
+import welcomeCarBg from './assets/Teal Luxury Sedan in Neon Showroom.png';
 import appLogo from './assets/Glossy Teal SM Automotive Emblem.png';
 import customerRoleBg from './assets/Sunset Luxury Car Showroom.png';
 import dealerRoleBg from './assets/Luxury Dealership Inspection.png';
