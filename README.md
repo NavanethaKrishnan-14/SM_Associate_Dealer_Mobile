@@ -1,5 +1,8 @@
 # SM Associate Cars — Mobile App
 
+> **Expo SDK 58 beta migration:** SDK 58 is pre-release as of October 14, 2026. The `expo` dependency currently uses Expo's `next` tag, with React 19.3 and React Native 0.88. Before building, run `npm install`, then `npx expo install --fix` and `npx expo-doctor`. Review and commit the resulting SDK-matched Expo module versions and lockfile. This is a beta migration, not a verified production build.
+
+
 Premium dark/glass car buying and selling marketplace built with React Native and Expo.
 
 ## Included flows
