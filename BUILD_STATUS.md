@@ -9,9 +9,10 @@
 - Subscription plan amounts are informational proposals only. Payment verification and protected admin functions require a backend.
 
 
-## Expo SDK 58 status (2026-10-14)
+## Expo SDK 57 status (2026-10-14)
 
-- `package.json` now opts into the Expo `next` distribution for SDK 58 beta; React is set to `19.3.0` and React Native to `0.88.0`, matching the published SDK 58 reference.
+- `package.json` targets Expo `~57.0.38`, React `19.2.3`, and React Native `0.86.3`, matching the SDK 57 compatibility table.
 - `app.json` does not pin `sdkVersion`; Expo resolves SDK from the installed `expo` package.
-- SDK 58 is still listed as beta in Expo's changelog. This repository update is therefore a beta opt-in.
-- Expo SDK package versions and the npm lockfile still need to be resolved with `npx expo install --fix` after installing dependencies; Android build/runtime verification has not been completed in this environment.
+- The Expo SDK core versions have been updated on `main`. Existing Expo modules still carry older SDK versions and must be aligned using `npx expo install --fix` after `npm install`.
+- No lockfile is currently tracked in the repository. Commit the generated lockfile after dependency resolution so installs are reproducible.
+- Dependency installation, Expo Doctor, Android build, and device/runtime verification have not been completed in this environment.
