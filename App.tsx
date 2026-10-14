@@ -51,7 +51,6 @@ function AppBody(){
 
  useEffect(()=>{(async()=>{try{const raw=await AsyncStorage.getItem('smcars-state-v1');if(raw){const d=JSON.parse(raw);if(d.user){setUser(d.user);setRole(d.user.role);setScreen('app')}if(d.saved)setSaved(d.saved);if(d.cars?.length)setCars(d.cars);if(d.enquiries)setEnquiries(d.enquiries);if(d.expenses)setExpenses(d.expenses);if(d.sales)setSales(d.sales)}}catch{}})()},[]);
  useEffect(()=>{if(user)AsyncStorage.setItem('smcars-state-v1',JSON.stringify({user,saved,cars,enquiries,expenses,sales})).catch(()=>{})},[user,saved,cars,enquiries,expenses,sales]);
- useEffect(()=>{if(screen!=='splash')return;const timer=setTimeout(()=>setScreen('role'),2200);return()=>clearTimeout(timer)},[screen]);
  const notify=(m:string)=>{setToast(m);setTimeout(()=>setToast(''),2500)};
  const shown=useMemo(()=>cars.filter(c=>c.status==='Published'&&(category==='All'||(category==='Used'&&c.year<2024)||(category==='New'&&c.year>=2024)||(category==='Premium'&&c.price>=1200000)||(category==='SUVs'&&/creta|brezza|nexon|innova/i.test(c.title)))&&(`${c.title} ${c.brand} ${c.model} ${c.location}`.toLowerCase().includes(query.toLowerCase()))&&(filters.fuel==='Any'||filters.fuel===c.fuel)&&(!filters.maxPrice||c.price<=Number(filters.maxPrice)*100000)),[cars,category,query,filters]);
  const mine=cars.filter(c=>c.seller===user?.name||c.id.startsWith('mine-'));
