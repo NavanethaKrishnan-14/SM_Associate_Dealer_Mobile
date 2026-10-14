@@ -38,7 +38,6 @@ export default function AuthScreen(p:Props){
    {role==='Dealer'?field('Dealership name',dealerName,setDealerName,'Dealership name',{icon:'business-outline'}):null}
   </>:null}
   {(!signup||signupStep===2)?<>
-   {field('Email address or Mobile number',email,setEmail,'Enter email or mobile number',{icon:'mail-outline',keyboardType:'email-address',autoCapitalize:'none'})}
    {!forgot?field(signup?'New Password':'Password',password,setPassword,signup?'Create a password':'Enter your password',{icon:'lock-closed-outline',secure:true}):null}
    {signup?field('Confirm Password',confirmPassword,setConfirmPassword,'Re-enter password',{icon:'lock-closed-outline',secure:true}):null}
    {signup?<Pressable onPress={()=>setAcceptedTerms(v=>!v)} style={styles.termsRow}><View style={[styles.checkbox,acceptedTerms&&styles.checkboxActive]}>{acceptedTerms?<Ionicons name="checkmark" size={12} color="#06110D"/>:null}</View><Text style={styles.termsText}>I agree to all <Text style={styles.termsAccent}>Terms & Conditions</Text> and <Text style={styles.termsAccent}>Privacy Policy</Text></Text></Pressable>:null}
