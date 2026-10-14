@@ -1,6 +1,6 @@
 # SM Associate Cars — Mobile App
 
-> **Expo SDK 57:** `package.json` targets Expo `~57.0.38`, React `19.2.3`, and React Native `0.86.3`. Expo SDK 57 is stable. Expo module versions still need alignment and verification: run `npm install`, `npx expo install --fix`, and `npx expo-doctor`, then commit the resulting dependency changes and lockfile. An Android build has not yet been verified.
+> **Expo SDK 57:** `package.json` targets Expo `~57.0.28`, React `19.2.3`, and React Native `0.86.3`. Expo SDK 57 is stable. Expo module versions still need alignment and verification: run `npm install`, `npx expo install --fix`, and `npx expo-doctor`, then commit the resulting dependency changes and lockfile. An Android build has not yet been verified.
 
 
 Premium dark/glass car buying and selling marketplace built with React Native and Expo.
