@@ -5,11 +5,6 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
-    "newArchEnabled": true,
-    "splash": {
-      "backgroundColor": "#03110e",
-      "resizeMode": "contain"
-    },
     "android": {
       "package": "com.smassociate.cars",
       "versionCode": 1
