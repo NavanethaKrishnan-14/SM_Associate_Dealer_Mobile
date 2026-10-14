@@ -9,7 +9,7 @@ import * as ImagePicker from 'expo-image-picker';
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import RoleSelectionScreen from './src/screens/RoleSelectionScreen';
 import AuthScreen from './src/screens/AuthScreen';
-import welcomeCarBg from './assets/Teal Luxury Sedan in Neon Showroom.png';
+import welcomeCarBg from './assets/Pearl Range Rover by Moonlit Lake.png';
 import appLogo from './assets/Glossy Teal SM Automotive Emblem.png';
 import customerRoleBg from './assets/Sunset Luxury Car Showroom.png';
 import dealerRoleBg from './assets/Luxury Dealership Inspection.png';
