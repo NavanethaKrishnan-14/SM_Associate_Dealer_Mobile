@@ -3,7 +3,7 @@
 Mobile app: https://github.com/NavanethaKrishnan-14/SM_Associate_Dealer_Mobile
 Backend: https://github.com/NavanethaKrishnan-14/SM_Associate_Dealer_backend
 
-The mobile application uses the shared REST API with the `/api/v1` prefix. Configure `EXPO_PUBLIC_API_BASE_URL` in an ignored local `.env` file; do not store passwords, JWT secrets, or MongoDB credentials in the mobile repo.
+The mobile application uses the shared REST API with the `/api/v1` prefix. The backend GitHub repository homepage is configured as `https://sm-associate-dealer-backend-sand.vercel.app`; this is the default used by the mobile client, but the production health endpoint has not yet been confirmed reachable from this environment. Configure `EXPO_PUBLIC_API_BASE_URL` in an ignored local `.env` file; do not store passwords, JWT secrets, or MongoDB credentials in the mobile repo.
 
 ## Wired API contract
 
