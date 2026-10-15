@@ -131,8 +131,19 @@ function AppBody(){
     const item=result?.data||result;
     const serverCar=item?.car||item?.item||item;
     if(!serverCar?.id)throw new Error('The backend did not confirm the listing was created.');
-    const car:Car={id:String(serverCar.id),title:String(serverCar.title||form.brand+' '+form.model),brand:form.brand,model:form.model,variant:form.variant||'Standard',year:Number(serverCar.manufacturingYear)||year,price:Number(serverCar.priceInr)||price,km:Number(serverCar.mileageKm)||km,fuel:String(form.fuel||'Petrol'),transmission:String(form.transmission||'Manual'),owners:Number(form.owners)||1,location:form.location||'Tirunelveli, Tamil Nadu',image:photoUris[0]||HERO,rating:'New',status:'Draft',seller:user.name,sellerType:'Dealer',description:form.description||''};
-    setCars(p=>[car,...p]);closeModal();setTab('Listings');notify(photoUris.length?'Listing created as draft; photos are not uploaded yet':'Listing created as draft');
+    let uploadedImages:any[]=[];
+    let photoUploadFailed=false;
+    for(let index=0;index<photoUris.length;index++){
+     try{
+      const uploaded:any=await api.uploadDealerCarImage(String(serverCar.id),photoUris[index],index,index===0);
+      const image=uploaded?.data||uploaded;
+      if(image?.imageUrl)uploadedImages.push(image);
+      else photoUploadFailed=true;
+     }catch{photoUploadFailed=true}
+    }
+    const car:Car={id:String(serverCar.id),title:String(serverCar.title||form.brand+' '+form.model),brand:form.brand,model:form.model,variant:form.variant||'Standard',year:Number(serverCar.manufacturingYear)||year,price:Number(serverCar.priceInr)||price,km:Number(serverCar.mileageKm)||km,fuel:String(form.fuel||'Petrol'),transmission:String(form.transmission||'Manual'),owners:Number(form.owners)||1,location:form.location||'Tirunelveli, Tamil Nadu',image:uploadedImages.find(image=>image.isCover)?.imageUrl||uploadedImages[0]?.imageUrl||photoUris[0]||HERO,rating:'New',status:'Draft',seller:user.name,sellerType:'Dealer',description:form.description||''};
+    setCars(p=>[car,...p]);closeModal();setTab('Listings');
+    notify(photoUploadFailed?'Listing saved as draft, but one or more photos failed to upload.':photoUris.length?'Listing and photos saved as draft':'Listing created as draft');
    }
   }catch(e:any){notify(e?.message||'Could not submit listing')}
   finally{setLoading(false)}
