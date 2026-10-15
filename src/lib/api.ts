@@ -108,6 +108,35 @@ export const api = {
   },
   async clearSession(): Promise<void> { await Promise.all([SecureStore.deleteItemAsync(ACCESS_KEY), SecureStore.deleteItemAsync(REFRESH_KEY)]); },
   async hasSession(): Promise<boolean> { return !!(await SecureStore.getItemAsync(REFRESH_KEY)); },
+  async favorites(): Promise<any[]> {
+    const response: any = await this.request('/favorites');
+    const data = response.data;
+    return Array.isArray(data) ? data : data?.items || [];
+  },
+  async addFavorite(carId: string): Promise<void> {
+    await this.request('/favorites', { method: 'POST', body: JSON.stringify({ carId }) });
+  },
+  async removeFavorite(carId: string): Promise<void> {
+    await this.request(`/favorites/${encodeURIComponent(carId)}`, { method: 'DELETE' });
+  },
+  async sendEnquiry(carId: string, message: string): Promise<any> {
+    return this.request('/enquiries', { method: 'POST', body: JSON.stringify({ carId, message }) });
+  },
+  async myEnquiries(): Promise<any[]> {
+    const response: any = await this.request('/enquiries/me');
+    return Array.isArray(response.data) ? response.data : response.data?.items || [];
+  },
+  async createDealerCar(input: { brand: string; model: string; variant?: string; title?: string; description?: string; priceInr: number; manufacturingYear: number; mileageKm: number; fuelType: 'PETROL'|'DIESEL'|'CNG'|'ELECTRIC'|'HYBRID'; transmission: 'MANUAL'|'AUTOMATIC'; ownershipCount?: number; city?: string; state?: string }): Promise<any> {
+    return this.request('/dealer/cars', { method: 'POST', body: JSON.stringify(input) });
+  },
+  async dealerCars(status?: string): Promise<any[]> {
+    const response: any = await this.request(`/dealer/cars${status ? `?status=${encodeURIComponent(status)}` : ''}`);
+    const data = response.data;
+    return Array.isArray(data) ? data : data?.items || [];
+  },
+  async changeDealerCarStatus(carId: string, status: 'DRAFT'|'PENDING_APPROVAL'|'RESERVED'|'SOLD'|'ARCHIVED'): Promise<any> {
+    return this.request(`/dealer/cars/${encodeURIComponent(carId)}/status`, { method: 'PATCH', body: JSON.stringify({ status }) });
+  },
   async marketplace(params: Record<string, string | number | undefined> = {}): Promise<any[]> {
     const query = Object.entries(params).filter(([, value]) => value !== undefined && value !== '').map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`).join('&');
     const response: any = await this.request(`/cars${query ? `?${query}` : ''}`, {}, false);
