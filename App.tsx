@@ -198,6 +198,13 @@ function AppBody(){
   }}/></>:null}
  {modal==='plan'?<><Text style={s.muted}>These are proposed prices from the flow document. No payment is processed in this app.</Text><Plan name="Dealer Starter" price="₹499 / month" detail="Up to 10 active listings"/><Plan name="Dealer Pro" price="₹1,999 / month" detail="200 included active listings" featured/><Text style={s.disclaimer}>A production payment provider must verify payments server-side before subscription activation.</Text><Button title="Contact support about plans" onPress={()=>{closeModal();notify('Connect support endpoint to continue')}}/></>:null}
  </ScrollView></View></KeyboardAvoidingView></Modal>;
+ if(screen==='splash') return <WelcomeScreen s={s} C={C} welcomeCarBg={welcomeCarBg} appLogo={appLogo} setScreen={setScreen}/>;
+ if(screen==='role') return <RoleSelectionScreen s={s} C={C} welcomeCarBg={welcomeCarBg} appLogo={appLogo} customerRoleBg={customerRoleBg} dealerRoleBg={dealerRoleBg} insets={insets} setRole={setRole} setAuthMode={setAuthMode} setScreen={setScreen}/>;
+ const authScreenProps={s,C,welcomeCarBg,appLogo,insets,role,authMode,setAuthMode,setScreen,name,setName,phone,setPhone,dealerName,setDealerName,email,setEmail,password,setPassword,loading,authenticate,socialLogin,Field,Button,Glass};
+ if(screen==='signin') return <SignInScreen {...authScreenProps}/>;
+ if(screen==='signup') return <SignUpScreen {...authScreenProps}/>;
+ if(screen==='forgot') return <ForgotPasswordScreen {...authScreenProps}/>;
+ if(screen==='auth') return authMode==='signup' ? <SignUpScreen {...authScreenProps}/> : authMode==='forgot' ? <ForgotPasswordScreen {...authScreenProps}/> : <SignInScreen {...authScreenProps}/>;
  const screenProps={s,C,HERO,money,Glass,Button,Header,Section,Field,Chip,Action,Empty,DataRow,Stat,Plan,Spec,Setting,LeadSection,insets,width,screen,setScreen,role,setRole,authMode,setAuthMode,name,setName,email,setEmail,phone,setPhone,password,setPassword,dealerName,setDealerName,user,setUser,tab,setTab,saved,setSaved,compare,setCompare,cars,setCars,selected,setSelected,query,setQuery,category,setCategory,filterOpen,setFilterOpen,filters,setFilters,enquiries,setEnquiries,expenses,setExpenses,sales,setSales,modal,setModal,form,setForm,photoUris,setPhotoUris,leadMessage,setLeadMessage,loading,setLoading,toast,setToast,dealerSection,setDealerSection,menuOpen,setMenuOpen,shown,mine,toggleSaved,closeModal,isIOSPrompt,authenticate,socialLogin,openSell,pickPhotos,submitListing,contact,changeStatus,notify,CarTile,BottomBar,CarDetail,ListingRow,ActionModal,api,Platform,ImagePicker,AsyncStorage};
  const home=()=> <HomeScreen {...screenProps}/>;
  const search=()=> <SearchScreen {...screenProps}/>;
