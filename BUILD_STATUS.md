@@ -3,10 +3,14 @@
 - Repository was empty at the start of implementation; this is a fresh Expo mobile project on `main`.
 - TSX source passed TypeScript parsing/transpilation syntax checks in the authoring environment.
 - Dependency installation repeatedly timed out, so `expo-doctor`, Android build, and device/runtime checks have not been completed.
-- Live authentication is optional via `EXPO_PUBLIC_API_BASE_URL`; check backend paths and token shape before connecting production.
-- Demo-mode listings, enquiries, photos, leads, expenses, and sales are locally held; they are not synced to a backend until API integrations are implemented.
-- Image selection is provided, but uploaded media must go through server-authorized ImageKit upload. No private media key belongs in the mobile app.
-- Subscription plan amounts are informational proposals only. Payment verification and protected admin functions require a backend.
+- The default API base URL is `https://sm-associate-dealer-backend-sand.vercel.app/api/v1`; it can be overridden with `EXPO_PUBLIC_API_BASE_URL`.
+- The mobile app now connects to backend auth/session endpoints, the public car marketplace, customer favourites, dealer inventory and image uploads, sell-car requests, customer enquiries and test-drive requests.
+- Dealer enquiries and test drives load from the backend, and their statuses can be updated from the dealer workspace.
+- Dealer vehicle expenses and sales/profit are persisted in MongoDB through the backend rather than only in local app state.
+- Listing reports are submitted to the backend for admin review.
+- Password recovery is not implemented server-side yet. Google/Facebook sign-in remains a demo-only flow until OAuth credentials and callbacks are configured.
+- Subscription plan amounts remain informational; payment processing and subscription activation need a payment provider and server-side verification.
+- GitHub CI verifies TypeScript/configuration only; a real Vercel runtime check, MongoDB connectivity, Android build, and device testing are still required before claiming end-to-end production verification.
 
 
 ## Expo SDK 57 status (2026-10-14)
