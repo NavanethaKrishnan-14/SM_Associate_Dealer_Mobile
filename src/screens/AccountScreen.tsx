@@ -1,11 +1,11 @@
 import React from 'react';
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 type Props = any;
 
 export default function AccountScreen(p: Props) {
-  const { s, C, Header, Glass, user, setUser, isIOSPrompt, notify, setScreen, Setting, Section, Button, signOut } = p;
+  const { s, C, Header, Glass, user, setUser, showPopup, setScreen, Setting, Section, Button, signOut } = p;
 
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
@@ -23,23 +23,17 @@ export default function AccountScreen(p: Props) {
             </View>
           </View>
           <Pressable
-            onPress={() => {
-              if (isIOSPrompt) {
-                (Alert as any).prompt(
-                  'Edit profile name',
-                  'Enter your display name',
-                  [
-                    { text: 'Cancel', style: 'cancel' },
-                    { text: 'Save', onPress: (value: string) => {
-                      if (value?.trim() && user) setUser({ ...user, name: value.trim() });
-                    } },
-                  ],
-                  'plain-text',
-                );
-              } else {
-                notify('Profile editing requires connected account settings');
-              }
-            }}
+            onPress={() => showPopup(
+              'Edit profile name',
+              'Enter your display name.',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Save', onPress: (value?: string) => {
+                  if (value?.trim() && user) setUser({ ...user, name: value.trim() });
+                } },
+              ],
+              { inputValue: user?.name || '', inputPlaceholder: 'Display name' },
+            )}
           >
             <Ionicons name="create-outline" color={C.teal} size={22} />
           </Pressable>
@@ -55,14 +49,15 @@ export default function AccountScreen(p: Props) {
           </Glass>
         ) : null}
         <Section title="Preferences" />
-        <Setting icon="notifications-outline" title="Notifications" subtitle="Listing updates and enquiries" />
+        <Setting showPopup={showPopup} icon="notifications-outline" title="Notifications" subtitle="Listing updates and enquiries" />
         <Setting icon="shield-checkmark-outline" title="Privacy & safety" subtitle="Keep your details protected" />
         <Setting icon="help-circle-outline" title="Help & support" subtitle="Get help using the marketplace" />
         <Setting
+          showPopup={showPopup}
           icon="document-text-outline"
           title="Vehicle disclaimer"
           subtitle="Read marketplace guidance"
-          onPress={() => Alert.alert('Vehicle disclaimer', 'Listings are provided by sellers. Independently verify documents, condition and ownership before purchase.')}
+          onPress={() => showPopup('Vehicle disclaimer', 'Listings are provided by sellers. Independently verify documents, condition and ownership before purchase.', undefined, { icon: 'alert-circle-outline' })}
         />
         <Setting icon="information-circle-outline" title="App information" subtitle="SM Associate Cars · v1.0.0" />
         <View style={{ marginTop: 23 }}>
@@ -72,13 +67,14 @@ export default function AccountScreen(p: Props) {
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Sign out"
-              onPress={() => Alert.alert(
+              onPress={() => showPopup(
                 'Sign out',
                 'Are you sure you want to sign out?',
                 [
                   { text: 'Cancel', style: 'cancel' },
                   { text: 'Sign out', style: 'destructive', onPress: () => { void signOut?.(); } },
                 ],
+                { icon: 'log-out-outline' },
               )}
               style={({ pressed }) => ({
                 minHeight: 53,
