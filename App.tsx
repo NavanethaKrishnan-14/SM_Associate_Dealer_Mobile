@@ -6,6 +6,8 @@ import { StatusBar } from 'expo-status-bar';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
+import * as AuthSession from 'expo-auth-session';
+import * as WebBrowser from 'expo-web-browser';
 import { api, toMobileUser } from './src/lib/api';
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import RoleSelectionScreen from './src/screens/RoleSelectionScreen';
@@ -24,6 +26,8 @@ import authCarBg from './assets/Teal Luxury Sedan in Neon Showroom.png';
 import appLogo from './assets/Glossy Teal SM Automotive Emblem.png';
 import customerRoleBg from './assets/Sunset Luxury Car Showroom.png';
 import dealerRoleBg from './assets/Luxury Dealership Inspection.png';
+
+WebBrowser.maybeCompleteAuthSession();
 
 type Role = 'Customer' | 'Dealer';
 type Tab = 'Home' | 'Search' | 'Listings' | 'Saved' | 'Account';
@@ -56,6 +60,21 @@ function AppBody(){
  const [screen,setScreen]=useState<'splash'|'role'|'auth'|'signin'|'signup'|'forgot'|'app'>('splash'),[role,setRole]=useState<Role>('Customer'),[authMode,setAuthMode]=useState<'signin'|'signup'|'forgot'>('signin');
  const [name,setName]=useState(''),[email,setEmail]=useState(''),[phone,setPhone]=useState(''),[password,setPassword]=useState(''),[dealerName,setDealerName]=useState('');
  const [user,setUser]=useState<User|null>(null),[tab,setTab]=useState<Tab>('Home'),[saved,setSaved]=useState<string[]>([]),[compare,setCompare]=useState<string[]>([]),[cars,setCars]=useState<Car[]>(SEED);
+ const socialRedirectUri=AuthSession.makeRedirectUri({scheme:'smassociate',path:'oauth'});
+ const [googleRequest,,promptGoogle]=AuthSession.useAuthRequest({
+  clientId:process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID||'',
+  responseType:AuthSession.ResponseType.IdToken,
+  scopes:['openid','email','profile'],
+  redirectUri:socialRedirectUri,
+  extraParams:{prompt:'select_account'},
+ },{authorizationEndpoint:'https://accounts.google.com/o/oauth2/v2/auth'});
+ const [facebookRequest,,promptFacebook]=AuthSession.useAuthRequest({
+  clientId:process.env.EXPO_PUBLIC_FACEBOOK_APP_ID||'',
+  responseType:AuthSession.ResponseType.Token,
+  scopes:['public_profile','email'],
+  redirectUri:socialRedirectUri,
+ },{authorizationEndpoint:'https://www.facebook.com/v23.0/dialog/oauth'});
+
  const [selected,setSelected]=useState<Car|null>(null),[query,setQuery]=useState(''),[category,setCategory]=useState('All'),[filterOpen,setFilterOpen]=useState(false),[filters,setFilters]=useState({fuel:'Any',maxPrice:''});
  const [enquiries,setEnquiries]=useState<any[]>([]),[expenses,setExpenses]=useState<any[]>([]),[sales,setSales]=useState<any[]>([]),[modal,setModal]=useState<'sell'|'expense'|'sale'|'plan'|'enquiry'|'none'>('none'),[form,setForm]=useState<any>({}),[photoUris,setPhotoUris]=useState<string[]>([]),[leadMessage,setLeadMessage]=useState(''),[loading,setLoading]=useState(false),[toast,setToast]=useState(''),[dealerSection,setDealerSection]=useState('Overview'),[menuOpen,setMenuOpen]=useState(false),[popup,setPopup]=useState<any>(null);
 
@@ -141,20 +160,23 @@ function AppBody(){
    setUser(u);setRole(u.role);setScreen('app');setTab('Home');notify(authMode==='signup'?'Account created successfully':'Welcome back');
   }catch(e:any){notify(e?.message||'Could not connect to the backend')}finally{setLoading(false)}
  };
- const socialLogin=(provider:'Google'|'Facebook')=>{
-  // Demo-only social sign-in: create a local mock session until real OAuth credentials are configured.
-  const demoUser:User={
-   name:provider==='Google'?'Google Demo User':'Facebook Demo User',
-   email:provider==='Google'?'google.demo@smassociate.demo':'facebook.demo@smassociate.demo',
-   phone:'9999999999',
-   role,
-   ...(role==='Dealer'?{dealerName:dealerName.trim()||'Demo Dealership'}:{})
-  };
-  setUser(demoUser);
-  setRole(demoUser.role);
-  setScreen('app');
-  setTab('Home');
-  notify(provider+' demo login successful');
+ const socialLogin=async(provider:'Google'|'Facebook')=>{
+  if(provider==='Google'&&!process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID){notify('Google sign-in is not configured. Add EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID to your mobile environment.');return}
+  if(provider==='Facebook'&&!process.env.EXPO_PUBLIC_FACEBOOK_APP_ID){notify('Facebook sign-in is not configured. Add EXPO_PUBLIC_FACEBOOK_APP_ID to your mobile environment.');return}
+  setLoading(true);
+  try{
+   const result=provider==='Google'?await promptGoogle():await promptFacebook();
+   if(result.type!=='success'){if(result.type==='error')notify(provider+' sign-in could not be completed. Please try again.');return}
+   const token=provider==='Google'?result.params.id_token:result.params.access_token;
+   if(!token){notify(provider+' did not return a valid authentication token.');return}
+   const session=provider==='Google'
+    ? await api.loginWithGoogle(token,role==='Dealer'?'DEALER':'CUSTOMER',{businessName:dealerName.trim(),city:'Tirunelveli'})
+    : await api.loginWithFacebook(token,role==='Dealer'?'DEALER':'CUSTOMER',{businessName:dealerName.trim(),city:'Tirunelveli'});
+   const signedInUser:User=toMobileUser(session.user);
+   setUser(signedInUser);setRole(signedInUser.role);setScreen('app');setTab('Home');
+   notify(provider+' sign-in successful');
+  }catch(e:any){notify(e?.message||provider+' sign-in failed. Please try again.')}
+  finally{setLoading(false)}
  };
  const signOut=async()=>{
   try{
