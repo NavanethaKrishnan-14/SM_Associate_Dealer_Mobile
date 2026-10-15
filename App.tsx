@@ -245,7 +245,18 @@ function AppBody(){
  if(screen==='signup') return <SignUpScreen {...authScreenProps}/>;
  if(screen==='forgot') return <ForgotPasswordScreen {...authScreenProps}/>;
  if(screen==='auth') return authMode==='signup' ? <SignUpScreen {...authScreenProps}/> : authMode==='forgot' ? <ForgotPasswordScreen {...authScreenProps}/> : <SignInScreen {...authScreenProps}/>;
- const screenProps={s,C,HERO,appLogo,signOut,money,Glass,Button,Header,Section,Field,Chip,Action,Empty,DataRow,Stat,Plan,Spec,Setting,LeadSection,insets,width,screen,setScreen,role,setRole,authMode,setAuthMode,name,setName,email,setEmail,phone,setPhone,password,setPassword,dealerName,setDealerName,user,setUser,tab,setTab,saved,setSaved,compare,setCompare,cars,setCars,selected,setSelected,query,setQuery,category,setCategory,filterOpen,setFilterOpen,filters,setFilters,enquiries,setEnquiries,expenses,setExpenses,sales,setSales,modal,setModal,form,setForm,photoUris,setPhotoUris,leadMessage,setLeadMessage,loading,setLoading,toast,setToast,dealerSection,setDealerSection,menuOpen,setMenuOpen,shown,mine,toggleSaved,closeModal,isIOSPrompt,authenticate,socialLogin,openSell,pickPhotos,submitListing,contact,changeStatus,notify,CarTile,BottomBar,CarDetail,ListingRow,ActionModal,api,Platform,ImagePicker,AsyncStorage};
+ const updateLeadStatus=async(id:string,status:string,kind:string)=>{
+  setLoading(true);
+  try{
+   if(kind==='Test drive')await api.updateDealerTestDrive(id,status as 'CONFIRMED'|'COMPLETED'|'CANCELLED');
+   else await api.updateDealerEnquiry(id,status as 'NEW'|'CONTACTED'|'IN_PROGRESS'|'CLOSED');
+   const labels:Record<string,string>={NEW:'New',OPEN:'Open',CONTACTED:'Contacted',IN_PROGRESS:'In progress',CLOSED:'Closed',REQUESTED:'Requested',CONFIRMED:'Confirmed',COMPLETED:'Completed',CANCELLED:'Cancelled'};
+   setEnquiries(p=>p.map(item=>item.id===id?{...item,status:labels[status]||status}:item));
+   notify(kind==='Test drive'?'Test-drive status updated':'Enquiry status updated');
+  }catch(e:any){notify(e?.message||'Could not update status')}
+  finally{setLoading(false)}
+ };
+ const screenProps={s,C,HERO,appLogo,signOut,money,Glass,Button,Header,Section,Field,Chip,Action,Empty,DataRow,Stat,Plan,Spec,Setting,LeadSection,updateLeadStatus,insets,width,screen,setScreen,role,setRole,authMode,setAuthMode,name,setName,email,setEmail,phone,setPhone,password,setPassword,dealerName,setDealerName,user,setUser,tab,setTab,saved,setSaved,compare,setCompare,cars,setCars,selected,setSelected,query,setQuery,category,setCategory,filterOpen,setFilterOpen,filters,setFilters,enquiries,setEnquiries,expenses,setExpenses,sales,setSales,modal,setModal,form,setForm,photoUris,setPhotoUris,leadMessage,setLeadMessage,loading,setLoading,toast,setToast,dealerSection,setDealerSection,menuOpen,setMenuOpen,shown,mine,toggleSaved,closeModal,isIOSPrompt,authenticate,socialLogin,openSell,pickPhotos,submitListing,contact,changeStatus,notify,CarTile,BottomBar,CarDetail,ListingRow,ActionModal,api,Platform,ImagePicker,AsyncStorage};
  const home=()=> <HomeScreen {...screenProps}/>;
  const search=()=> <SearchScreen {...screenProps}/>;
  const listings=()=> <ListingsScreen {...screenProps}/>;
