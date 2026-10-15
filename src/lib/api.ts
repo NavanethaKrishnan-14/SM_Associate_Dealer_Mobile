@@ -151,6 +151,27 @@ export const api = {
   async changeDealerCarStatus(carId: string, status: 'DRAFT'|'PENDING_APPROVAL'|'RESERVED'|'SOLD'|'ARCHIVED'): Promise<any> {
     return this.request(`/dealer/cars/${encodeURIComponent(carId)}/status`, { method: 'PATCH', body: JSON.stringify({ status }) });
   },
+  async dealerExpenses(): Promise<any[]> {
+    const response: any = await this.request('/dealer/expenses');
+    return Array.isArray(response.data) ? response.data : response.data?.items || [];
+  },
+  async createDealerExpense(input: { carId: string; category: string; amount: number; note?: string }): Promise<any> {
+    return this.request('/dealer/expenses', { method: 'POST', body: JSON.stringify(input) });
+  },
+  async dealerSales(): Promise<any[]> {
+    const response: any = await this.request('/dealer/sales');
+    return Array.isArray(response.data) ? response.data : response.data?.items || [];
+  },
+  async recordDealerSale(input: { carId: string; salePrice: number; acquisitionCost: number }): Promise<any> {
+    return this.request('/dealer/sales', { method: 'POST', body: JSON.stringify(input) });
+  },
+  async dealerEnquiries(type?: 'CAR_ENQUIRY' | 'SELL_CAR'): Promise<any[]> {
+    const response: any = await this.request(`/dealer/enquiries${type ? `?type=${encodeURIComponent(type)}` : ''}`);
+    return Array.isArray(response.data) ? response.data : response.data?.items || [];
+  },
+  async updateDealerEnquiry(id: string, status: 'NEW' | 'CONTACTED' | 'IN_PROGRESS' | 'CLOSED'): Promise<any> {
+    return this.request(`/dealer/enquiries/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify({ status }) });
+  },
   async marketplace(params: Record<string, string | number | undefined> = {}): Promise<any[]> {
     const query = Object.entries(params).filter(([, value]) => value !== undefined && value !== '').map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`).join('&');
     const response: any = await this.request(`/cars${query ? `?${query}` : ''}`, {}, false);
