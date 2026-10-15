@@ -34,7 +34,7 @@ export default function AuthScreen(p:Props){
   {signup?<View style={styles.stepper}><View style={styles.stepTrack}><View style={[styles.stepProgress,signupStep===2&&styles.stepProgressFull]}/></View><View style={styles.stepLabels}><View style={styles.stepLabelGroup}><View style={[styles.stepNumber,signupStep>=1&&styles.stepNumberActive]}><Text style={[styles.stepNumberText,signupStep>=1&&styles.stepNumberTextActive]}>{signupStep>1?'✓':'1'}</Text></View><View><Text style={[styles.stepTitle,signupStep===1&&styles.stepTitleActive]}>Personal details</Text><Text style={styles.stepHint}>Your basic information</Text></View></View><View style={styles.stepLabelGroup}><View style={[styles.stepNumber,signupStep===2&&styles.stepNumberActive]}><Text style={[styles.stepNumberText,signupStep===2&&styles.stepNumberTextActive]}>2</Text></View><View><Text style={[styles.stepTitle,signupStep===2&&styles.stepTitleActive]}>Account setup</Text><Text style={styles.stepHint}>Secure your account</Text></View></View></View></View>:null}
   {signup&&signupStep===1?<>
    {field('Full name',name,setName,'Your full name',{icon:'person-outline'})}
-   {field('Mobile number or Email address',phone,setPhone,'Enter mobile number or email address',{icon:'mail-outline',keyboardType:'email-address',autoCapitalize:'none'})}
+   {field('Mobile number',phone,setPhone,'Enter mobile number',{icon:'call-outline',keyboardType:'phone-pad',autoCapitalize:'none'})}
    {role==='Dealer'?field('Dealership name',dealerName,setDealerName,'Dealership name',{icon:'business-outline'}):null}
   </>:null}
   {(!signup||signupStep===2)?<>
