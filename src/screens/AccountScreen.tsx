@@ -69,10 +69,9 @@ export default function AccountScreen(p: Props) {
           {!user ? (
             <Button title="Sign in / Create account" onPress={() => setScreen('role')} />
           ) : (
-            <Button
-              title="Sign out"
-              icon="log-out-outline"
-              outline
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Sign out"
               onPress={() => Alert.alert(
                 'Sign out',
                 'Are you sure you want to sign out?',
@@ -81,7 +80,24 @@ export default function AccountScreen(p: Props) {
                   { text: 'Sign out', style: 'destructive', onPress: () => { void signOut?.(); } },
                 ],
               )}
-            />
+              style={({ pressed }) => ({
+                minHeight: 53,
+                borderRadius: 18,
+                backgroundColor: '#E53935',
+                borderWidth: 1,
+                borderColor: '#FF7773',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexDirection: 'row',
+                gap: 9,
+                paddingHorizontal: 18,
+                marginTop: 10,
+                opacity: pressed ? 0.82 : 1,
+              })}
+            >
+              <Ionicons name="log-out-outline" color="#FFFFFF" size={19} />
+              <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '800' }}>Sign out</Text>
+            </Pressable>
           )}
         </View>
       </View>
