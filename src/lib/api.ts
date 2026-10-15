@@ -137,6 +137,17 @@ export const api = {
     const data = response.data;
     return Array.isArray(data) ? data : data?.items || [];
   },
+  async uploadDealerCarImage(carId: string, uri: string, index: number, isCover: boolean): Promise<any> {
+    const cleanUri = uri.split('?')[0];
+    const extension = cleanUri.split('.').pop()?.toLowerCase();
+    const mimeType = extension === 'png' ? 'image/png' : extension === 'webp' ? 'image/webp' : 'image/jpeg';
+    const fileName = `vehicle-${index + 1}.${extension === 'png' || extension === 'webp' ? extension : 'jpg'}`;
+    const form = new FormData();
+    form.append('file', { uri, name: fileName, type: mimeType } as any);
+    form.append('isCover', isCover ? 'true' : 'false');
+    form.append('sortOrder', String(index));
+    return this.request(`/dealer/cars/${encodeURIComponent(carId)}/images`, { method: 'POST', body: form });
+  },
   async changeDealerCarStatus(carId: string, status: 'DRAFT'|'PENDING_APPROVAL'|'RESERVED'|'SOLD'|'ARCHIVED'): Promise<any> {
     return this.request(`/dealer/cars/${encodeURIComponent(carId)}/status`, { method: 'PATCH', body: JSON.stringify({ status }) });
   },
