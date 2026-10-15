@@ -75,7 +75,7 @@ function AppBody(){
       rating:'—',status:'Published',seller:String(car.dealer?.businessName||'Verified seller'),sellerType:'Dealer',
       description:String(car.description||'Contact the seller for more information.')
     })).filter((car:Car)=>!!car.id);
-    if(active)setCars(prev=>{const merged=new Map(prev.map(car=>[car.id,car]));mapped.forEach(car=>merged.set(car.id,car));return Array.from(merged.values())});
+    if(active)setCars(prev=>{const merged=new Map<string,Car>(prev.map(car=>[car.id,car] as const));mapped.forEach(car=>merged.set(car.id,car));return Array.from(merged.values())});
   }catch{
     if(active){setCars(prev=>prev.filter(car=>car.sellerType==='Dealer'&&car.status!=='Published'));setToast('Live vehicles could not be loaded. Check the backend URL and connection.')}
   }
