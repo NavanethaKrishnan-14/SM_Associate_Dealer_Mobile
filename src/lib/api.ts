@@ -15,7 +15,9 @@ async function parseResponse<T>(response: Response): Promise<T> {
   try { body = raw ? JSON.parse(raw) : {}; } catch { body = { message: raw || 'The server returned an invalid response.' }; }
   if (!response.ok || body?.success === false) {
     const message = body?.error?.message || body?.message || body?.error || `Request failed (${response.status}).`;
-    throw new Error(typeof message === 'string' ? message : 'The request could not be completed.');
+    const error = new Error(typeof message === 'string' ? message : 'The request could not be completed.') as Error & { status?: number };
+    error.status = response.status;
+    throw error;
   }
   return body as T;
 }
@@ -25,9 +27,11 @@ async function rawRequest<T>(path: string, init: RequestInit = {}, timeoutMs = 1
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const isForm = typeof FormData !== 'undefined' && init.body instanceof FormData;
+    const headers = new Headers(init.headers || {});
+    headers.set('Accept', 'application/json');
+    if (!isForm && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
     const response = await fetch(`${API_BASE_URL}${path.startsWith('/') ? path : `/${path}`}`, {
-      ...init, signal: controller.signal,
-      headers: { Accept: 'application/json', ...(isForm ? {} : { 'Content-Type': 'application/json' }), ...init.headers },
+      ...init, signal: controller.signal, headers,
     });
     return await parseResponse<T>(response);
   } catch (error: any) {
@@ -60,11 +64,14 @@ export const api = {
     try {
       return await rawRequest<T>(path, { ...init, headers });
     } catch (error: any) {
-      if (authenticated && /401/.test(String(error?.message)) && await refreshSession()) {
-        const nextToken = await SecureStore.getItemAsync(ACCESS_KEY);
-        const retryHeaders = new Headers(init.headers || {});
-        if (nextToken) retryHeaders.set('Authorization', `Bearer ${nextToken}`);
-        return rawRequest<T>(path, { ...init, headers: retryHeaders });
+      if (authenticated && error?.status === 401) {
+        if (await refreshSession()) {
+          const nextToken = await SecureStore.getItemAsync(ACCESS_KEY);
+          const retryHeaders = new Headers(init.headers || {});
+          if (nextToken) retryHeaders.set('Authorization', `Bearer ${nextToken}`);
+          return rawRequest<T>(path, { ...init, headers: retryHeaders });
+        }
+        await this.clearSession();
       }
       throw error;
     }
