@@ -104,6 +104,29 @@ export const api = {
     await SecureStore.setItemAsync(REFRESH_KEY, session.refreshToken);
     return session;
   },
+
+  async loginWithGoogle(idToken: string, role: 'CUSTOMER' | 'DEALER', dealer?: { businessName?: string; city?: string }): Promise<Session> {
+    const response: any = await this.request('/auth/google', {
+      method: 'POST',
+      body: JSON.stringify({ idToken, role, ...(dealer?.businessName ? { businessName: dealer.businessName } : {}), ...(dealer?.city ? { city: dealer.city } : {}) }),
+    }, false);
+    const session: Session = response.data || response;
+    if (!session?.accessToken || !session?.refreshToken || !session?.user) throw new Error('Google login response is missing user or session tokens.');
+    await SecureStore.setItemAsync(ACCESS_KEY, session.accessToken);
+    await SecureStore.setItemAsync(REFRESH_KEY, session.refreshToken);
+    return session;
+  },
+  async loginWithFacebook(accessToken: string, role: 'CUSTOMER' | 'DEALER', dealer?: { businessName?: string; city?: string }): Promise<Session> {
+    const response: any = await this.request('/auth/facebook', {
+      method: 'POST',
+      body: JSON.stringify({ accessToken, role, ...(dealer?.businessName ? { businessName: dealer.businessName } : {}), ...(dealer?.city ? { city: dealer.city } : {}) }),
+    }, false);
+    const session: Session = response.data || response;
+    if (!session?.accessToken || !session?.refreshToken || !session?.user) throw new Error('Facebook login response is missing user or session tokens.');
+    await SecureStore.setItemAsync(ACCESS_KEY, session.accessToken);
+    await SecureStore.setItemAsync(REFRESH_KEY, session.refreshToken);
+    return session;
+  },
   async currentUser(): Promise<ApiUser> {
     const response: any = await this.request('/auth/me');
     return response.data?.user || response.data;
