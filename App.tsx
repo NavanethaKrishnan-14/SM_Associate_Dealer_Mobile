@@ -102,8 +102,12 @@ function AppBody(){
       description:String(car.description||'Contact the seller for more information.')
     })).filter((car:Car)=>!!car.id);
     if(active)setCars(prev=>{const merged=new Map<string,Car>(prev.map(car=>[car.id,car] as const));mapped.forEach(car=>merged.set(car.id,car));return Array.from(merged.values())});
-  }catch{
-    if(active){setCars(prev=>prev.filter(car=>car.sellerType==='Dealer'&&car.status!=='Published'));setToast('Live vehicles could not be loaded. Check the backend URL and connection.')}
+  }catch(error:any){
+    if(active){
+      setCars(prev=>prev.filter(car=>car.sellerType==='Dealer'&&car.status!=='Published'));
+      const reason=String(error?.message||'Network request failed').replace(/\\s+/g,' ').slice(0,150);
+      setToast(`Could not load vehicles: ${reason}`);
+    }
   }
 })();return()=>{active=false}},[]);
  
