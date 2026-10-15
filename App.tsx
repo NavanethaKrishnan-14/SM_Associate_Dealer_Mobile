@@ -20,7 +20,7 @@ type Tab = 'Home' | 'Search' | 'Listings' | 'Saved' | 'Account';
 type ListingStatus = 'Published' | 'Pending Review' | 'Draft' | 'Reserved' | 'Sold' | 'Paused';
 type Car = { id:string; title:string; brand:string; model:string; variant:string; year:number; price:number; km:number; fuel:string; transmission:string; owners:number; location:string; image:string; rating:string; status:ListingStatus; seller:string; sellerType:string; description:string };
 type User = { name:string; email:string; phone:string; role:Role; dealerName?:string; verified?:boolean };
-const C = { bg:'#030907', surface:'#0A1714', surface2:'#10221D', border:'rgba(85,219,184,0.22)', teal:'#31E6B4', text:'#F5FAF8', muted:'#9BAEAA', dim:'#637773', gold:'#F8C948', red:'#F06464', black:'#020403' };
+const C = { bg:'#030907', surface:'#0A1714', surface2:'#10221D', border:'rgba(85,219,184,0.22)', teal:'#31E6B4', text:'#F5FAF8', muted:'#9BAEAA', dim:'#637773', gold:'#F8C948', red:'#F06464', primary:'#31E6B4', black:'#020403' };
 const HERO='https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1400&q=90';
 const SEED:Car[]=[];
 const money=(n:number)=>n>=10000000?'₹'+(n/10000000).toFixed(2)+'Cr':n>=100000?'₹'+(n/100000).toFixed(1)+'L':'₹'+n.toLocaleString('en-IN');
