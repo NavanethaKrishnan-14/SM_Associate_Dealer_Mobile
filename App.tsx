@@ -63,7 +63,7 @@ function AppBody(){
  useEffect(()=>{let active=true;(async()=>{
   try{
     const rows=await api.marketplace({page:1,limit:50});
-    const mapped:Car[]=rows.map((car:any)=>({
+    const mapped:Car[]=rows.map((car:any):Car=>({
       id:String(car.id),
       title:String(car.title||[car.brand?.name,car.model?.name].filter(Boolean).join(' ')||'Vehicle'),
       brand:String(car.brand?.name||''),model:String(car.model?.name||''),variant:String(car.variant||'Standard'),
