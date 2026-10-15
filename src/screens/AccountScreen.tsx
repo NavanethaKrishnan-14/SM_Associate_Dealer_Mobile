@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 type Props = any;
 
 export default function AccountScreen(p: Props) {
-  const { s, C, Header, Glass, user, setUser, isIOSPrompt, notify, setScreen, Setting, Section, Button } = p;
+  const { s, C, Header, Glass, user, setUser, isIOSPrompt, notify, setScreen, Setting, Section, Button, signOut } = p;
 
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
@@ -66,7 +66,23 @@ export default function AccountScreen(p: Props) {
         />
         <Setting icon="information-circle-outline" title="App information" subtitle="SM Associate Cars · v1.0.0" />
         <View style={{ marginTop: 23 }}>
-          {!user ? <Button title="Sign in / Create account" onPress={() => setScreen('role')} /> : null}
+          {!user ? (
+            <Button title="Sign in / Create account" onPress={() => setScreen('role')} />
+          ) : (
+            <Button
+              title="Sign out"
+              icon="log-out-outline"
+              outline
+              onPress={() => Alert.alert(
+                'Sign out',
+                'Are you sure you want to sign out?',
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Sign out', style: 'destructive', onPress: () => { void signOut?.(); } },
+                ],
+              )}
+            />
+          )}
         </View>
       </View>
     </ScrollView>
