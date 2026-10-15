@@ -179,6 +179,9 @@ export const api = {
   async updateDealerTestDrive(id: string, status: 'CONFIRMED' | 'COMPLETED' | 'CANCELLED'): Promise<any> {
     return this.request(`/dealer/test-drives/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify({ status }) });
   },
+  async reportCar(input: { carId: string; reason: string; details?: string }): Promise<any> {
+    return this.request('/reports', { method: 'POST', body: JSON.stringify(input) });
+  },
   async marketplace(params: Record<string, string | number | undefined> = {}): Promise<any[]> {
     const query = Object.entries(params).filter(([, value]) => value !== undefined && value !== '').map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`).join('&');
     const response: any = await this.request(`/cars${query ? `?${query}` : ''}`, {}, false);
