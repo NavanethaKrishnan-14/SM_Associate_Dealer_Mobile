@@ -49,7 +49,7 @@ function AppBody(){
  useEffect(()=>{(async()=>{
    try{
     const raw=await AsyncStorage.getItem('smcars-state-v1');
-    if(raw){const d=JSON.parse(raw);if(d.saved)setSaved(d.saved);if(d.cars?.length)setCars(d.cars);if(d.enquiries)setEnquiries(d.enquiries);if(d.expenses)setExpenses(d.expenses);if(d.sales)setSales(d.sales)}
+    if(raw){const d=JSON.parse(raw);if(d.saved)setSaved(d.saved);if(d.enquiries)setEnquiries(d.enquiries);if(d.expenses)setExpenses(d.expenses);if(d.sales)setSales(d.sales)}
     if(await api.hasSession()){
       try{const serverUser=await api.currentUser();const u:User=toMobileUser(serverUser);setUser(u);setRole(u.role);setScreen('app')}
       catch{await api.clearSession();await AsyncStorage.removeItem('smcars-auth-token')}
@@ -75,9 +75,9 @@ function AppBody(){
       rating:'—',status:'Published',seller:String(car.dealer?.businessName||'Verified seller'),sellerType:'Dealer',
       description:String(car.description||'Contact the seller for more information.')
     })).filter((car:Car)=>!!car.id);
-    if(active)setCars(mapped);
+    if(active)setCars(prev=>{const merged=new Map(prev.map(car=>[car.id,car]));mapped.forEach(car=>merged.set(car.id,car));return Array.from(merged.values())});
   }catch{
-    if(active){setCars([]);setToast('Live vehicles could not be loaded. Check the backend URL and connection.')}
+    if(active){setCars(prev=>prev.filter(car=>car.sellerType==='Dealer'&&car.status!=='Published'));setToast('Live vehicles could not be loaded. Check the backend URL and connection.')}
   }
 })();return()=>{active=false}},[]);
  
