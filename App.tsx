@@ -119,7 +119,21 @@ function AppBody(){
    setUser(u);setRole(u.role);setScreen('app');setTab('Home');notify(authMode==='signup'?'Account created successfully':'Welcome back');
   }catch(e:any){notify(e?.message||'Could not connect to the backend')}finally{setLoading(false)}
  };
- const socialLogin=(provider:'Google'|'Facebook')=>{notify(provider+' sign-in is not configured yet. Use email/mobile and password.')};
+ const socialLogin=(provider:'Google'|'Facebook')=>{
+  // Demo-only social sign-in: create a local mock session until real OAuth credentials are configured.
+  const demoUser:User={
+   name:provider==='Google'?'Google Demo User':'Facebook Demo User',
+   email:provider==='Google'?'google.demo@smassociate.demo':'facebook.demo@smassociate.demo',
+   phone:'9999999999',
+   role,
+   ...(role==='Dealer'?{dealerName:dealerName.trim()||'Demo Dealership'}:{})
+  };
+  setUser(demoUser);
+  setRole(demoUser.role);
+  setScreen('app');
+  setTab('Home');
+  notify(provider+' demo login successful');
+ };
  const openSell=()=>{if(!user){notify('Sign in to list a car');setScreen('role');return}setForm({brand:'',model:'',variant:'',year:'2021',price:'',km:'',fuel:'Petrol',transmission:'Manual',owners:'1',location:'Tirunelveli, Tamil Nadu',description:''});setPhotoUris([]);setModal('sell')};
  const pickPhotos=async()=>{const perm=await ImagePicker.requestMediaLibraryPermissionsAsync();if(!perm.granted){notify('Allow photo access to add car photos');return}const r=await ImagePicker.launchImageLibraryAsync({mediaTypes:['images'],allowsMultipleSelection:true,selectionLimit:12,quality:.75});if(!r.canceled)setPhotoUris(r.assets.slice(0,12).map(a=>a.uri))};
  const submitListing=async()=>{
