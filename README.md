@@ -8,7 +8,7 @@ Premium dark/glass car buying and selling marketplace built with React Native an
 ## Included flows
 
 - Welcome splash → role selection (Customer / Dealer) → sign in or account creation.
-- Local demo mode when no API URL is configured; a small persistent profile/listing state is stored on-device.
+- Customer/dealer authentication uses the shared backend and securely stored session tokens. Some inventory and financial modules still use local demo state.
 - Customer marketplace: search, category filters, car detail/specifications, saved cars, up to three comparison selections, seller enquiries, test-drive requests, listing creation and moderation status.
 - Dealer workspace: inventory, enquiry/lead status, vehicle expenses, sales records, profit arithmetic, and proposed subscription plans.
 - Admin access is deliberately not offered as public registration. Admin moderation and plan control require a protected backend/admin interface, as described in the product flow.
@@ -28,7 +28,18 @@ For Android: `npx expo start --android`
 
 ## Live backend connection
 
-Set `EXPO_PUBLIC_API_BASE_URL` in a local `.env` file to the API base URL. The mobile client expects `POST /auth/login` and `POST /auth/register` at that base URL (for example, if the base URL ends in `/api/v1`, the final URLs are `/api/v1/auth/login` and `/api/v1/auth/register`). It expects JSON responses containing a user and access token (`accessToken` or `token`). Verify these paths and response shapes against the actual backend before using production credentials. No backend URL is assumed by default.
+The app has a shared API client matching the backend contract for customer/dealer registration, sign-in, secure session storage, token refresh, session restore and public car browsing.
+
+Set `EXPO_PUBLIC_API_BASE_URL` in your local `.env` file if your deployed API domain differs from the configured default. Include the `/api/v1` suffix. For a physical Android phone using a local backend, use your PC's LAN IP (for example `http://192.168.1.10:5000/api/v1`), not `localhost`.
+
+Install and start with:
+
+```powershell
+npm install
+npx expo start --clear
+```
+
+See `docs/BACKEND_CONNECTION.md` for setup notes and current implementation boundaries.
 
 ## Production work still required
 
