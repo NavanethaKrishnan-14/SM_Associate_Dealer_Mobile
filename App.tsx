@@ -162,7 +162,7 @@ function AppBody(){
   setName('');setEmail('');setPhone('');setPassword('');setDealerName('');
   setSaved([]);setCompare([]);setSelected(null);setMenuOpen(false);
   setScreen('role');setAuthMode('signin');setTab('Home');
-  notify('You have been signed out');
+  showPopup('Signed out','You have been signed out.',undefined,{icon:'checkmark-circle-outline'});
  };
  const openSell=()=>{if(!user){notify('Sign in to list a car');setScreen('role');return}setForm({brand:'',model:'',variant:'',year:'2021',price:'',km:'',fuel:'Petrol',transmission:'Manual',owners:'1',location:'Tirunelveli, Tamil Nadu',description:''});setPhotoUris([]);setModal('sell')};
  const pickPhotos=async()=>{const perm=await ImagePicker.requestMediaLibraryPermissionsAsync();if(!perm.granted){notify('Allow photo access to add car photos');return}const r=await ImagePicker.launchImageLibraryAsync({mediaTypes:['images'],allowsMultipleSelection:true,selectionLimit:12,quality:.75});if(!r.canceled)setPhotoUris(r.assets.slice(0,12).map(a=>a.uri))};
