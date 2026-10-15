@@ -161,6 +161,8 @@ function AppBody(){
   }catch(e:any){notify(e?.message||'Could not connect to the backend')}finally{setLoading(false)}
  };
  const socialLogin=async(provider:'Google'|'Facebook')=>{
+  if(provider==='Google'&&!googleRequest){notify('Google sign-in is still loading. Please try again.');return}
+  if(provider==='Facebook'&&!facebookRequest){notify('Facebook sign-in is still loading. Please try again.');return}
   if(provider==='Google'&&!process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID){notify('Google sign-in is not configured. Add EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID to your mobile environment.');return}
   if(provider==='Facebook'&&!process.env.EXPO_PUBLIC_FACEBOOK_APP_ID){notify('Facebook sign-in is not configured. Add EXPO_PUBLIC_FACEBOOK_APP_ID to your mobile environment.');return}
   setLoading(true);
