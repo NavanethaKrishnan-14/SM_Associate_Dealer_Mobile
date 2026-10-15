@@ -1,21 +1,74 @@
 import React from 'react';
-import { Alert, Image, ImageBackground, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 type Props = any;
-type Tab = 'Home' | 'Search' | 'Listings' | 'Saved' | 'Account';
-type Role = 'Customer' | 'Dealer';
-type ListingStatus = 'Published' | 'Pending Review' | 'Draft' | 'Reserved' | 'Sold' | 'Paused';
 
 export default function AccountScreen(p: Props) {
- const {s,C,HERO,money,Glass,Button,Header,Section,Field,Chip,Action,Empty,DataRow,Stat,Plan,Spec,Setting,LeadSection,insets,width,screen,setScreen,role,setRole,authMode,setAuthMode,name,setName,email,setEmail,phone,setPhone,password,setPassword,dealerName,setDealerName,user,setUser,tab,setTab,saved,setSaved,compare,setCompare,cars,setCars,selected,setSelected,query,setQuery,category,setCategory,filterOpen,setFilterOpen,filters,setFilters,enquiries,setEnquiries,expenses,setExpenses,sales,setSales,modal,setModal,form,setForm,photoUris,setPhotoUris,leadMessage,setLeadMessage,loading,setLoading,toast,setToast,dealerSection,setDealerSection,menuOpen,setMenuOpen,shown,mine,toggleSaved,closeModal,isIOSPrompt,authenticate,socialLogin,openSell,pickPhotos,submitListing,contact,changeStatus,notify,CarTile,BottomBar,CarDetail,ListingRow,ActionModal,api,Platform,ImagePicker,AsyncStorage} = p;
- return (<ScrollView contentContainerStyle={{paddingBottom:120}}><View style={s.pad}><Header title="Your account" subtitle="Profile and preferences"/><Glass style={s.profile}><View style={s.profileIcon}><Ionicons name="person" color={C.teal} size={28}/></View><View style={{flex:1}}><Text style={s.profileName}>{user?.name||'Guest user'}</Text><Text style={s.muted}>{user?.email||'Sign in to manage your account'}</Text><View style={s.rolePill}><Text style={{fontSize:12,color:C.teal,fontWeight:'800'}}>{user?.role||'Guest'} account</Text></View></View><Pressable onPress={()=>{if(isIOSPrompt)(Alert as any).prompt('Edit profile name','Enter your display name',[{text:'Cancel',style:'cancel'},{text:'Save',onPress:(v:string)=>{if(v?.trim()&&user)setUser({...user,name:v.trim()})}}],'plain-text');else notify('Profile editing requires connected account settings')}}><Ionicons name="create-outline" color={C.teal} size={22}/></Pressable></Glass>{user?.role==='Dealer'?<Glass style={s.verification}><Ionicons name="shield-checkmark-outline" color={C.gold} size={22}/><View style={{flex:1}}><Text style={s.carName}>Dealer verification</Text><Text style={s.muted}>Pending until reviewed by an authorized admin.</Text></View><Text style={s.pending}>PENDING</Text></Glass>:null}<Section title="Preferences"/><Setting icon="notifications-outline" title="Notifications" subtitle="Listing updates and enquiries"/><Setting icon="shield-checkmark-outline" title="Privacy & safety" subtitle="Keep your details protected"/><Setting icon="help-circle-outline" title="Help & support" subtitle="Get help using the marketplace"/><Setting icon="document-text-outline" title="Vehicle disclaimer" subtitle="Read marketplace guidance" onPress={()=>Alert.alert('Vehicle disclaimer','Listings are provided by sellers. Independently verify documents, condition and ownership before purchase.')}/><Setting icon="information-circle-outline" title="App information" subtitle="SM Associate Cars · v1.0.0"/><View style={{marginTop:23}}>{!user?<Button title="Sign in / Create account" onPress={()=>setScreen('role')}/>:null}</View></View></ScrollView>;
- if(screen==='splash')return <WelcomeScreen s={s} C={C} welcomeCarBg={welcomeCarBg} appLogo={appLogo} setScreen={setScreen}/>;
- if(screen==='role')return <RoleSelectionScreen s={s} C={C} welcomeCarBg={welcomeCarBg} appLogo={appLogo} customerRoleBg={customerRoleBg} dealerRoleBg={dealerRoleBg} insets={insets} setRole={setRole} setAuthMode={setAuthMode} setScreen={setScreen}/>;
- const authScreenProps={s,C,welcomeCarBg,appLogo,insets,role,authMode,setAuthMode,setScreen,name,setName,phone,setPhone,dealerName,setDealerName,email,setEmail,password,setPassword,loading,authenticate,socialLogin,Field,Button,Glass};
- if(screen==='signin')return <SignInScreen {...authScreenProps}/>;
- if(screen==='signup')return <SignUpScreen {...authScreenProps}/>;
- if(screen==='forgot')return <ForgotPasswordScreen {...authScreenProps}/>;
- if(screen==='auth')return authMode==='signup'?<SignUpScreen {...authScreenProps}/>:<SignInScreen {...authScreenProps}/>);
+  const { s, C, Header, Glass, user, setUser, isIOSPrompt, notify, setScreen, Setting, Section, Button } = p;
+
+  return (
+    <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
+      <View style={s.pad}>
+        <Header title="Your account" subtitle="Profile and preferences" />
+        <Glass style={s.profile}>
+          <View style={s.profileIcon}>
+            <Ionicons name="person" color={C.teal} size={28} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={s.profileName}>{user?.name || 'Guest user'}</Text>
+            <Text style={s.muted}>{user?.email || 'Sign in to manage your account'}</Text>
+            <View style={s.rolePill}>
+              <Text style={{ fontSize: 12, color: C.teal, fontWeight: '800' }}>{user?.role || 'Guest'} account</Text>
+            </View>
+          </View>
+          <Pressable
+            onPress={() => {
+              if (isIOSPrompt) {
+                (Alert as any).prompt(
+                  'Edit profile name',
+                  'Enter your display name',
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Save', onPress: (value: string) => {
+                      if (value?.trim() && user) setUser({ ...user, name: value.trim() });
+                    } },
+                  ],
+                  'plain-text',
+                );
+              } else {
+                notify('Profile editing requires connected account settings');
+              }
+            }}
+          >
+            <Ionicons name="create-outline" color={C.teal} size={22} />
+          </Pressable>
+        </Glass>
+        {user?.role === 'Dealer' ? (
+          <Glass style={s.verification}>
+            <Ionicons name="shield-checkmark-outline" color={C.gold} size={22} />
+            <View style={{ flex: 1 }}>
+              <Text style={s.carName}>Dealer verification</Text>
+              <Text style={s.muted}>Pending until reviewed by an authorized admin.</Text>
+            </View>
+            <Text style={s.pending}>PENDING</Text>
+          </Glass>
+        ) : null}
+        <Section title="Preferences" />
+        <Setting icon="notifications-outline" title="Notifications" subtitle="Listing updates and enquiries" />
+        <Setting icon="shield-checkmark-outline" title="Privacy & safety" subtitle="Keep your details protected" />
+        <Setting icon="help-circle-outline" title="Help & support" subtitle="Get help using the marketplace" />
+        <Setting
+          icon="document-text-outline"
+          title="Vehicle disclaimer"
+          subtitle="Read marketplace guidance"
+          onPress={() => Alert.alert('Vehicle disclaimer', 'Listings are provided by sellers. Independently verify documents, condition and ownership before purchase.')}
+        />
+        <Setting icon="information-circle-outline" title="App information" subtitle="SM Associate Cars · v1.0.0" />
+        <View style={{ marginTop: 23 }}>
+          {!user ? <Button title="Sign in / Create account" onPress={() => setScreen('role')} /> : null}
+        </View>
+      </View>
+    </ScrollView>
+  );
 }
