@@ -8,11 +8,11 @@ Premium dark/glass car buying and selling marketplace built with React Native an
 ## Included flows
 
 - Welcome splash → role selection (Customer / Dealer) → sign in or account creation.
-- Customer/dealer authentication uses the shared backend and securely stored session tokens. Some inventory and financial modules still use local demo state.
+- Customer/dealer authentication uses the shared backend and securely stored session tokens. Dealer inventory, favourites, customer enquiries, test-drive requests and sell-car leads use the shared backend. Expense and sale/profit ledgers remain locally persisted because the backend does not yet expose accounting APIs.
 - Customer marketplace: search, category filters, car detail/specifications, saved cars, up to three comparison selections, seller enquiries, test-drive requests, listing creation and moderation status.
 - Dealer workspace: inventory, enquiry/lead status, vehicle expenses, sales records, profit arithmetic, and proposed subscription plans.
 - Admin access is deliberately not offered as public registration. Admin moderation and plan control require a protected backend/admin interface, as described in the product flow.
-- ImagePicker photo selection for listing drafts. Listing photos remain local until a backend-authorized ImageKit upload is configured.
+- Dealer listing photos upload through the authenticated backend multipart endpoint; failed photo uploads are reported without discarding the created draft.
 - Loading and error feedback, empty states, vehicle safety disclaimer, and sign-out confirmation.
 
 ## Run locally
@@ -43,7 +43,7 @@ See `docs/BACKEND_CONNECTION.md` for setup notes and current implementation boun
 
 ## Production work still required
 
-This repository was empty when initialized, so the app is a fresh project. The app has not been built on an Android device here. Before production: connect and test the live API, add authenticated API calls for listings/favourites/enquiries/leads/expenses/sales/admin permissions, implement secured ImageKit authorization/upload on the server, integrate server-verified subscriptions and payments, and run `npx expo-doctor` plus Android/iOS device tests. The product-flow document treats plan amounts/quotas as proposals, not finalized policy.
+This repository was empty when initialized, so the app is a fresh project. The app has not been built on an Android device here. Before production: connect and test the live API, implement a server-backed acquisition and expense/sale accounting ledger, integrate server-verified subscriptions and payments, add OAuth/password-reset providers, and complete Android/iOS device tests. Dealer photos currently use the backend's authenticated multipart upload endpoint. The product-flow document treats plan amounts/quotas as proposals, not finalized policy.
 
 ## Initial plan copy (from product-flow draft)
 
