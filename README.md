@@ -28,7 +28,7 @@ For Android: `npx expo start --android`
 
 ## Live backend connection
 
-The app has a shared API client matching the backend contract for customer/dealer registration, sign-in, secure session storage, token refresh, session restore and public car browsing.
+The app has a shared API client matching the backend contract for customer/dealer registration, sign-in, secure session storage, token refresh, session restore and public car browsing. Home/Search inventory is fetched from `GET /api/v1/cars`; if the API returns no vehicles or cannot be reached, the app does not show bundled sample inventory.
 
 Set `EXPO_PUBLIC_API_BASE_URL` in your local `.env` file if your deployed API domain differs from the configured default. Include the `/api/v1` suffix. For a physical Android phone using a local backend, use your PC's LAN IP (for example `http://192.168.1.10:5000/api/v1`), not `localhost`.
 
