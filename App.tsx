@@ -85,6 +85,7 @@ function AppBody(){
  }catch(e:any){if(active)setToast(e?.message||'Could not load dealer records from the backend')}})();return()=>{active=false}},[user?.role,user?.name]);
  const notify=(m:string)=>{if(screen!=='app'){setPopup({title:'SM Associate Cars',message:m,icon:/success|welcome|created/i.test(m)?'checkmark-circle-outline':'information-circle-outline'});return;}setToast(m);setTimeout(()=>setToast(''),2500)};
  const showPopup=(title:string,message:string,actions?:any[],options:any={})=>setPopup({title,message,actions,...options});
+ const popupOverlay=<PremiumPopup visible={!!popup} title={popup?.title||''} message={popup?.message||''} actions={popup?.actions} inputValue={popup?.inputValue} inputPlaceholder={popup?.inputPlaceholder} onInputChange={popup?.inputValue!==undefined?(value)=>setPopup((current:any)=>current?{...current,inputValue:value}:current):undefined} onClose={()=>setPopup(null)}/>;
  useEffect(()=>{let active=true;(async()=>{
   try{
     const rows=await api.marketplace({page:1,limit:50});
@@ -247,7 +248,7 @@ function AppBody(){
  if(screen==='signin') return <><SignInScreen {...authScreenProps}/>{popupOverlay}</>;
  if(screen==='signup') return <><SignUpScreen {...authScreenProps}/>{popupOverlay}</>;
  if(screen==='forgot') return <><ForgotPasswordScreen {...authScreenProps}/>{popupOverlay}</>;
- if(screen==='auth') return <>{authMode==='signup' ? <SignUpScreen {...authScreenProps}/> : authMode==='forgot' ? <ForgotPasswordScreen {...authScreenProps}/> : <SignInScreen {...authScreenProps}/>{popupOverlay}</>;
+ if(screen==='auth') return <>{authMode==='signup' ? <SignUpScreen {...authScreenProps}/> : authMode==='forgot' ? <ForgotPasswordScreen {...authScreenProps}/> : <SignInScreen {...authScreenProps}/>}{popupOverlay}</>;
  const updateLeadStatus=async(id:string,status:string,kind:string)=>{
   setLoading(true);
   try{
@@ -259,7 +260,7 @@ function AppBody(){
   }catch(e:any){notify(e?.message||'Could not update status')}
   finally{setLoading(false)}
  };
- const popupOverlay=<PremiumPopup visible={!!popup} title={popup?.title||''} message={popup?.message||''} actions={popup?.actions} inputValue={popup?.inputValue} inputPlaceholder={popup?.inputPlaceholder} onInputChange={popup?.inputValue!==undefined?(value)=>setPopup((current:any)=>current?{...current,inputValue:value}:current):undefined} onClose={()=>setPopup(null)}/>;
+
  const screenProps={s,C,HERO,appLogo,signOut,money,Glass,Button,Header,Section,Field,Chip,Action,Empty,DataRow,Stat,Plan,Spec,Setting,LeadSection,updateLeadStatus,showPopup,insets,width,screen,setScreen,role,setRole,authMode,setAuthMode,name,setName,email,setEmail,phone,setPhone,password,setPassword,dealerName,setDealerName,user,setUser,tab,setTab,saved,setSaved,compare,setCompare,cars,setCars,selected,setSelected,query,setQuery,category,setCategory,filterOpen,setFilterOpen,filters,setFilters,enquiries,setEnquiries,expenses,setExpenses,sales,setSales,modal,setModal,form,setForm,photoUris,setPhotoUris,leadMessage,setLeadMessage,loading,setLoading,toast,setToast,dealerSection,setDealerSection,menuOpen,setMenuOpen,shown,mine,toggleSaved,closeModal,isIOSPrompt,authenticate,socialLogin,openSell,pickPhotos,submitListing,contact,changeStatus,notify,CarTile,BottomBar,CarDetail,ListingRow,ActionModal,api,Platform,ImagePicker,AsyncStorage};
  const home=()=> <HomeScreen {...screenProps}/>;
  const search=()=> <SearchScreen {...screenProps}/>;
