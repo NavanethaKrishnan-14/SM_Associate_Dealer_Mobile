@@ -60,7 +60,7 @@ function AppBody(){
  const [screen,setScreen]=useState<'splash'|'role'|'auth'|'signin'|'signup'|'forgot'|'app'>('splash'),[role,setRole]=useState<Role>('Customer'),[authMode,setAuthMode]=useState<'signin'|'signup'|'forgot'>('signin');
  const [name,setName]=useState(''),[email,setEmail]=useState(''),[phone,setPhone]=useState(''),[password,setPassword]=useState(''),[dealerName,setDealerName]=useState('');
  const [user,setUser]=useState<User|null>(null),[tab,setTab]=useState<Tab>('Home'),[saved,setSaved]=useState<string[]>([]),[compare,setCompare]=useState<string[]>([]),[cars,setCars]=useState<Car[]>(SEED);
- const socialRedirectUri=AuthSession.makeRedirectUri({scheme:'smassociate',path:'oauth'});
+ const socialRedirectUri=process.env.EXPO_PUBLIC_OAUTH_REDIRECT_URI||AuthSession.makeRedirectUri({scheme:Platform.OS==='web'?undefined:'smassociate',path:'oauth'});
  const [googleRequest,,promptGoogle]=AuthSession.useAuthRequest({
   clientId:process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID||'',
   responseType:AuthSession.ResponseType.IdToken,
