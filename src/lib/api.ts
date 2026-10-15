@@ -119,6 +119,9 @@ export const api = {
   async removeFavorite(carId: string): Promise<void> {
     await this.request(`/favorites/${encodeURIComponent(carId)}`, { method: 'DELETE' });
   },
+  async submitSellCarRequest(input: { contactName: string; contactPhone: string; city: string; brand: string; model: string; year?: number; kms?: number }): Promise<any> {
+    return this.request('/sell-car-requests', { method: 'POST', body: JSON.stringify(input) }, false);
+  },
   async sendEnquiry(carId: string, message: string): Promise<any> {
     return this.request('/enquiries', { method: 'POST', body: JSON.stringify({ carId, message }) });
   },
