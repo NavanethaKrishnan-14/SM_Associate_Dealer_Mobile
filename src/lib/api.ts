@@ -77,7 +77,7 @@ export const api = {
     }
   },
   async login(identifier: string, password: string, role: 'CUSTOMER' | 'DEALER'): Promise<Session> {
-    const response: any = await this.request('/auth/login', { method: 'POST', body: JSON.stringify({ identifier, password, role }) }, false);
+    const response: any = await this.request('/auth/login', { method: 'POST', body: JSON.stringify({ identifier: identifier.includes('@') ? identifier.trim().toLowerCase() : identifier.trim().replace(/[^0-9+]/g, ''), password, role }) }, false);
     const session: Session = response.data || response;
     if (!session?.accessToken || !session?.refreshToken || !session?.user) throw new Error('Login response is missing user or session tokens.');
     await SecureStore.setItemAsync(ACCESS_KEY, session.accessToken);
