@@ -1,5 +1,9 @@
 name: Mobile quality checks
 
+concurrency:
+  group: mobile-quality-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [main]
