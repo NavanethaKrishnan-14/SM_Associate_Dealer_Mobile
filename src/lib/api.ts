@@ -4,7 +4,7 @@ export type ApiEnvelope<T> = { success?: boolean; data?: T; message?: string; er
 export type ApiUser = { id: string; name: string; email?: string | null; phone: string; role: 'CUSTOMER' | 'DEALER' | 'ADMIN'; status?: string; dealerProfile?: { id: string; businessName: string; city: string; verificationStatus: string } };
 export type Session = { user: ApiUser; accessToken: string; refreshToken: string; tokenType?: string; expiresIn?: number };
 
-export const API_BASE_URL = (process.env.EXPO_PUBLIC_API_BASE_URL?.trim().replace(/\/+$/, '') || 'https://sm-associate-dealer-backend.vercel.app/api/v1');
+export const API_BASE_URL = (process.env.EXPO_PUBLIC_API_BASE_URL?.trim().replace(/\/+$/, '') || 'https://sm-associate-dealer-backend-sand.vercel.app/api/v1');
 const ACCESS_KEY = 'smcars.accessToken';
 const REFRESH_KEY = 'smcars.refreshToken';
 let refreshInFlight: Promise<boolean> | null = null;
