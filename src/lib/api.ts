@@ -172,6 +172,13 @@ export const api = {
   async updateDealerEnquiry(id: string, status: 'NEW' | 'CONTACTED' | 'IN_PROGRESS' | 'CLOSED'): Promise<any> {
     return this.request(`/dealer/enquiries/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify({ status }) });
   },
+  async dealerTestDrives(status?: 'REQUESTED' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED'): Promise<any[]> {
+    const response: any = await this.request(`/dealer/test-drives${status ? `?status=${encodeURIComponent(status)}` : ''}`);
+    return Array.isArray(response.data) ? response.data : response.data?.items || [];
+  },
+  async updateDealerTestDrive(id: string, status: 'CONFIRMED' | 'COMPLETED' | 'CANCELLED'): Promise<any> {
+    return this.request(`/dealer/test-drives/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify({ status }) });
+  },
   async marketplace(params: Record<string, string | number | undefined> = {}): Promise<any[]> {
     const query = Object.entries(params).filter(([, value]) => value !== undefined && value !== '').map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`).join('&');
     const response: any = await this.request(`/cars${query ? `?${query}` : ''}`, {}, false);
