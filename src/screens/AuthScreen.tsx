@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
-type Props = { s:any; C:any; welcomeCarBg:any; appLogo:any; insets:any; role:string; authMode:string; setAuthMode:(mode:string)=>void; setScreen:(screen:string)=>void; name:string; setName:(v:string)=>void; phone:string; setPhone:(v:string)=>void; dealerName:string; setDealerName:(v:string)=>void; email:string; setEmail:(v:string)=>void; password:string; setPassword:(v:string)=>void; loading:boolean; authenticate:()=>void; socialLogin:(provider:'Google'|'Facebook')=>void; Field:any; Button:any; Glass:any };
+type Props = { s:any; C:any; welcomeCarBg:any; appLogo:any; insets:any; role:string; authMode:string; setAuthMode:(mode:'signin'|'signup'|'forgot')=>void; setScreen:(screen:'role'|'signup'|'auth'|'forgot'|'signin'|'splash'|'app')=>void; name:string; setName:(v:string)=>void; phone:string; setPhone:(v:string)=>void; dealerName:string; setDealerName:(v:string)=>void; email:string; setEmail:(v:string)=>void; password:string; setPassword:(v:string)=>void; loading:boolean; authenticate:()=>void; socialLogin:(provider:'Google'|'Facebook')=>void; Field:any; Button:any; Glass:any };
 export default function AuthScreen(p:Props){
  const {s,C,welcomeCarBg,appLogo,insets,role,authMode,setAuthMode,setScreen,name,setName,phone,setPhone,dealerName,setDealerName,email,setEmail,password,setPassword,loading,authenticate,socialLogin}=p;
  const [confirmPassword,setConfirmPassword]=useState('');
