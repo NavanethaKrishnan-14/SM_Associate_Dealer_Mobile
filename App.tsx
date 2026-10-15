@@ -22,14 +22,7 @@ type Car = { id:string; title:string; brand:string; model:string; variant:string
 type User = { name:string; email:string; phone:string; role:Role; dealerName?:string; verified?:boolean };
 const C = { bg:'#030907', surface:'#0A1714', surface2:'#10221D', border:'rgba(85,219,184,0.22)', teal:'#31E6B4', text:'#F5FAF8', muted:'#9BAEAA', dim:'#637773', gold:'#F8C948', red:'#F06464', black:'#020403' };
 const HERO='https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1400&q=90';
-const SEED:Car[]=[
-{id:'car-001',title:'BMW 3 Series',brand:'BMW',model:'3 Series',variant:'320d Sport',year:2022,price:1250000,km:28000,fuel:'Diesel',transmission:'Automatic',owners:1,location:'Tirunelveli, Tamil Nadu',image:'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=85',rating:'4.8',status:'Published',seller:'SM Premium Motors',sellerType:'Dealer',description:'Well-maintained premium sedan with service history available for inspection.'},
-{id:'car-002',title:'Hyundai Creta',brand:'Hyundai',model:'Creta',variant:'SX Petrol',year:2023,price:1480000,km:18000,fuel:'Petrol',transmission:'Automatic',owners:1,location:'Tirunelveli, Tamil Nadu',image:'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=900&q=85',rating:'4.6',status:'Published',seller:'Arun K.',sellerType:'Customer',description:'Single owner SUV in excellent condition. Inspection welcome.'},
-{id:'car-003',title:'Maruti Suzuki Brezza',brand:'Maruti Suzuki',model:'Brezza',variant:'ZXI',year:2022,price:960000,km:32000,fuel:'Petrol',transmission:'Manual',owners:1,location:'Madurai, Tamil Nadu',image:'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=900&q=85',rating:'4.5',status:'Published',seller:'City Wheels',sellerType:'Dealer',description:'Reliable compact SUV, ready for a test drive.'},
-{id:'car-004',title:'Honda City',brand:'Honda',model:'City',variant:'VX CVT',year:2021,price:1120000,km:41000,fuel:'Petrol',transmission:'Automatic',owners:2,location:'Thoothukudi, Tamil Nadu',image:'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?auto=format&fit=crop&w=900&q=85',rating:'4.7',status:'Published',seller:'Kannan Motors',sellerType:'Dealer',description:'Comfortable city sedan with a spacious cabin.'},
-{id:'car-005',title:'Toyota Innova Crysta',brand:'Toyota',model:'Innova Crysta',variant:'VX Diesel',year:2020,price:1820000,km:56000,fuel:'Diesel',transmission:'Manual',owners:1,location:'Tirunelveli, Tamil Nadu',image:'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=900&q=85',rating:'4.8',status:'Published',seller:'Southline Auto',sellerType:'Dealer',description:'Family-ready MPV. Records available to interested buyers.'},
-{id:'car-006',title:'Tata Nexon',brand:'Tata',model:'Nexon',variant:'XZ+ Petrol',year:2024,price:1090000,km:9000,fuel:'Petrol',transmission:'Manual',owners:1,location:'Tenkasi, Tamil Nadu',image:'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=900&q=85',rating:'4.6',status:'Published',seller:'Priya R.',sellerType:'Customer',description:'Low kilometre personal car. Seller is available for direct viewing.'}
-];
+const SEED:Car[]=[];
 const money=(n:number)=>n>=10000000?'₹'+(n/10000000).toFixed(2)+'Cr':n>=100000?'₹'+(n/100000).toFixed(1)+'L':'₹'+n.toLocaleString('en-IN');
 function Glass({children,style}:any){return <View style={[s.glass,style]}>{children}</View>}
 function Button({title,onPress,icon,outline=false,disabled=false}:any){return <Pressable disabled={disabled} onPress={onPress} style={({pressed})=>[s.btn,outline&&s.btnOutline,disabled&&{opacity:.45},pressed&&{opacity:.78}]}>{icon?<Ionicons name={icon} size={18} color={outline?C.red:C.black}/>:null}<Text style={[s.btnText,outline&&{color:C.red}]}>{title}</Text></Pressable>}
@@ -49,7 +42,7 @@ function AppBody(){
  const insets=useSafeAreaInsets(),{width}=useWindowDimensions();
  const [screen,setScreen]=useState<'splash'|'role'|'auth'|'signin'|'signup'|'forgot'|'app'>('splash'),[role,setRole]=useState<Role>('Customer'),[authMode,setAuthMode]=useState<'signin'|'signup'|'forgot'>('signin');
  const [name,setName]=useState(''),[email,setEmail]=useState(''),[phone,setPhone]=useState(''),[password,setPassword]=useState(''),[dealerName,setDealerName]=useState('');
- const [user,setUser]=useState<User|null>(null),[tab,setTab]=useState<Tab>('Home'),[saved,setSaved]=useState<string[]>(['car-002']),[compare,setCompare]=useState<string[]>([]),[cars,setCars]=useState<Car[]>(SEED);
+ const [user,setUser]=useState<User|null>(null),[tab,setTab]=useState<Tab>('Home'),[saved,setSaved]=useState<string[]>([]),[compare,setCompare]=useState<string[]>([]),[cars,setCars]=useState<Car[]>(SEED);
  const [selected,setSelected]=useState<Car|null>(null),[query,setQuery]=useState(''),[category,setCategory]=useState('All'),[filterOpen,setFilterOpen]=useState(false),[filters,setFilters]=useState({fuel:'Any',maxPrice:''});
  const [enquiries,setEnquiries]=useState<any[]>([]),[expenses,setExpenses]=useState<any[]>([]),[sales,setSales]=useState<any[]>([]),[modal,setModal]=useState<'sell'|'expense'|'sale'|'plan'|'enquiry'|'none'>('none'),[form,setForm]=useState<any>({}),[photoUris,setPhotoUris]=useState<string[]>([]),[leadMessage,setLeadMessage]=useState(''),[loading,setLoading]=useState(false),[toast,setToast]=useState(''),[dealerSection,setDealerSection]=useState('Overview'),[menuOpen,setMenuOpen]=useState(false);
 
@@ -65,6 +58,27 @@ function AppBody(){
   })()},[]);
  useEffect(()=>{if(user)AsyncStorage.setItem('smcars-state-v1',JSON.stringify({user,saved,cars,enquiries,expenses,sales})).catch(()=>{})},[user,saved,cars,enquiries,expenses,sales]);
  const notify=(m:string)=>{setToast(m);setTimeout(()=>setToast(''),2500)};
+ useEffect(()=>{let active=true;(async()=>{
+  try{
+    const rows=await api.marketplace({page:1,limit:50});
+    const mapped:Car[]=rows.map((car:any)=>({
+      id:String(car.id),
+      title:String(car.title||[car.brand?.name,car.model?.name].filter(Boolean).join(' ')||'Vehicle'),
+      brand:String(car.brand?.name||''),model:String(car.model?.name||''),variant:String(car.variant||'Standard'),
+      year:Number(car.manufacturingYear)||new Date().getFullYear(),price:Number(car.priceInr)||0,km:Number(car.mileageKm)||0,
+      fuel:String(car.fuelType||'PETROL').toLowerCase().replace(/^./,(v:string)=>v.toUpperCase()),
+      transmission:String(car.transmission||'MANUAL').toLowerCase().replace(/^./,(v:string)=>v.toUpperCase()),
+      owners:Number(car.ownershipCount)||1,location:[car.city,car.state].filter(Boolean).join(', '),
+      image:String(car.images?.find((image:any)=>image.isCover)?.imageUrl||car.images?.[0]?.imageUrl||HERO),
+      rating:'—',status:'Published',seller:String(car.dealer?.businessName||'Verified seller'),sellerType:'Dealer',
+      description:String(car.description||'Contact the seller for more information.')
+    })).filter((car:Car)=>!!car.id);
+    if(active)setCars(mapped);
+  }catch{
+    if(active){setCars([]);setToast('Live vehicles could not be loaded. Check the backend URL and connection.')}
+  }
+})();return()=>{active=false}},[]);
+ 
  const shown=useMemo(()=>cars.filter(c=>c.status==='Published'&&(category==='All'||(category==='Used'&&c.year<2024)||(category==='New'&&c.year>=2024)||(category==='Premium'&&c.price>=1200000)||(category==='SUVs'&&/creta|brezza|nexon|innova/i.test(c.title)))&&(`${c.title} ${c.brand} ${c.model} ${c.location}`.toLowerCase().includes(query.toLowerCase()))&&(filters.fuel==='Any'||filters.fuel===c.fuel)&&(!filters.maxPrice||c.price<=Number(filters.maxPrice)*100000)),[cars,category,query,filters]);
  const mine=cars.filter(c=>c.seller===user?.name||c.id.startsWith('mine-'));
  const toggleSaved=(id:string)=>setSaved(p=>p.includes(id)?p.filter(x=>x!==id):[...p,id]);
