@@ -95,9 +95,13 @@ function AppBody(){
  const isIOSPrompt=Platform.OS==='ios'&&typeof (Alert as any).prompt==='function';
  const authenticate=async()=>{
   if(authMode==='forgot'){notify('Password recovery is not configured on the backend yet.');return}
-  if(!email.trim()||!password.trim()){notify('Enter email or mobile number and password');return}
-  if(authMode==='signup'&&(!name.trim()||!phone.trim())){notify('Complete your profile details');return}
-  if(role==='Dealer'&&authMode==='signup'&&!dealerName.trim()){notify('Enter your dealership name');return}
+  if(!password.trim()){notify('Enter your password');return}
+  if(authMode==='signup'){
+   const normalizedPhone=phone.trim().replace(/[^0-9+]/g,'');
+   if(!name.trim()||!normalizedPhone){notify('Complete your profile details');return}
+   if(!/^\\+?[0-9]{10,15}$/.test(normalizedPhone)){notify('Enter a valid phone number with 10–15 digits');return}
+   if(role==='Dealer'&&!dealerName.trim()){notify('Enter your dealership name');return}
+  }else if(!email.trim()){notify('Enter your email address or mobile number');return}
   setLoading(true);
   try{
    const session=authMode==='signup'
