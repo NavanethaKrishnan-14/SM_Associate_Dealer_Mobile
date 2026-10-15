@@ -105,7 +105,7 @@ function AppBody(){
   }catch(error:any){
     if(active){
       setCars(prev=>prev.filter(car=>car.sellerType==='Dealer'&&car.status!=='Published'));
-      const reason=String(error?.message||'Network request failed').replace(/\\s+/g,' ').slice(0,150);
+      const reason=String(error?.message||'Network request failed').replace(/\s+/g,' ').slice(0,150);
       setToast(`Could not load vehicles: ${reason}`);
     }
   }
