@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import PremiumPopup from './PremiumPopup';
 
 type Props = { s:any; C:any; authCarBg:any; appLogo:any; insets:any; role:string; authMode:string; setAuthMode:(mode:'signin'|'signup'|'forgot')=>void; setScreen:(screen:'role'|'signup'|'auth'|'forgot'|'signin'|'splash'|'app')=>void; name:string; setName:(v:string)=>void; phone:string; setPhone:(v:string)=>void; dealerName:string; setDealerName:(v:string)=>void; email:string; setEmail:(v:string)=>void; password:string; setPassword:(v:string)=>void; loading:boolean; authenticate:()=>void; socialLogin:(provider:'Google'|'Facebook')=>void; Field:any; Button:any; Glass:any };
 export default function AuthScreen(p:Props){
