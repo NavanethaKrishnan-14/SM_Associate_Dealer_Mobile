@@ -14,6 +14,12 @@ The mobile application uses the shared REST API with the `/api/v1` prefix. The b
 - `POST /auth/refresh`: rotates the refresh token and returns both tokens
 - `POST /auth/logout`: revokes the refresh token
 - `GET /cars`: public vehicle browse/search helper
+- `GET /favorites`, `POST /favorites`, `DELETE /favorites/:carId`: customer favourites
+- `POST /enquiries`, `GET /enquiries/me`: customer enquiries
+- `POST /test-drives`: customer test-drive requests
+- `POST /sell-car-requests`: seller intake lead
+- `GET /dealer/cars`, `POST /dealer/cars`, `PATCH /dealer/cars/:id/status`: dealer inventory
+- `POST /dealer/cars/:carId/images`: authenticated dealer photo upload
 
 Access and refresh tokens use Expo SecureStore, not AsyncStorage. Authenticated API requests attach a Bearer token and attempt one refresh after a 401 response.
 
