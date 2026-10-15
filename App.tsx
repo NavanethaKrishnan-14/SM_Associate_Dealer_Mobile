@@ -99,7 +99,7 @@ function AppBody(){
   if(authMode==='signup'){
    const normalizedPhone=phone.trim().replace(/[^0-9+]/g,'');
    if(!name.trim()||!normalizedPhone){notify('Complete your profile details');return}
-   if(!/^\\+?[0-9]{10,15}$/.test(normalizedPhone)){notify('Enter a valid phone number with 10–15 digits');return}
+   if(!/^\+?[0-9]{10,15}$/.test(normalizedPhone)){notify('Enter a valid phone number with 10–15 digits');return}
    if(role==='Dealer'&&!dealerName.trim()){notify('Enter your dealership name');return}
   }else if(!email.trim()){notify('Enter your email address or mobile number');return}
   setLoading(true);
