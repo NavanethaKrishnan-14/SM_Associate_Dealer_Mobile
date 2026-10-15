@@ -19,6 +19,7 @@ import ListingsScreen from './src/screens/ListingsScreen';
 import SavedScreen from './src/screens/SavedScreen';
 import AccountScreen from './src/screens/AccountScreen';
 import welcomeCarBg from './assets/Pearl Range Rover by Moonlit Lake.png';
+import authCarBg from './assets/Teal Luxury Sedan in Neon Showroom.png';
 import appLogo from './assets/Glossy Teal SM Automotive Emblem.png';
 import customerRoleBg from './assets/Sunset Luxury Car Showroom.png';
 import dealerRoleBg from './assets/Luxury Dealership Inspection.png';
@@ -240,7 +241,7 @@ function AppBody(){
  </ScrollView></View></KeyboardAvoidingView></Modal>;
  if(screen==='splash') return <WelcomeScreen s={s} C={C} welcomeCarBg={welcomeCarBg} appLogo={appLogo} setScreen={setScreen}/>;
  if(screen==='role') return <RoleSelectionScreen s={s} C={C} welcomeCarBg={welcomeCarBg} appLogo={appLogo} customerRoleBg={customerRoleBg} dealerRoleBg={dealerRoleBg} insets={insets} setRole={setRole} setAuthMode={setAuthMode} setScreen={setScreen}/>;
- const authScreenProps={s,C,welcomeCarBg,appLogo,insets,role,authMode,setAuthMode,setScreen,name,setName,phone,setPhone,dealerName,setDealerName,email,setEmail,password,setPassword,loading,authenticate,socialLogin,Field,Button,Glass};
+ const authScreenProps={s,C,authCarBg,appLogo,insets,role,authMode,setAuthMode,setScreen,name,setName,phone,setPhone,dealerName,setDealerName,email,setEmail,password,setPassword,loading,authenticate,socialLogin,Field,Button,Glass};
  if(screen==='signin') return <SignInScreen {...authScreenProps}/>;
  if(screen==='signup') return <SignUpScreen {...authScreenProps}/>;
  if(screen==='forgot') return <ForgotPasswordScreen {...authScreenProps}/>;
