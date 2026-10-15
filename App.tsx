@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
+import { api, toMobileUser } from './src/lib/api';
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import RoleSelectionScreen from './src/screens/RoleSelectionScreen';
 import AuthScreen from './src/screens/AuthScreen';
@@ -52,7 +53,16 @@ function AppBody(){
  const [selected,setSelected]=useState<Car|null>(null),[query,setQuery]=useState(''),[category,setCategory]=useState('All'),[filterOpen,setFilterOpen]=useState(false),[filters,setFilters]=useState({fuel:'Any',maxPrice:''});
  const [enquiries,setEnquiries]=useState<any[]>([]),[expenses,setExpenses]=useState<any[]>([]),[sales,setSales]=useState<any[]>([]),[modal,setModal]=useState<'sell'|'expense'|'sale'|'plan'|'enquiry'|'none'>('none'),[form,setForm]=useState<any>({}),[photoUris,setPhotoUris]=useState<string[]>([]),[leadMessage,setLeadMessage]=useState(''),[loading,setLoading]=useState(false),[toast,setToast]=useState(''),[dealerSection,setDealerSection]=useState('Overview'),[menuOpen,setMenuOpen]=useState(false);
 
- useEffect(()=>{(async()=>{try{const raw=await AsyncStorage.getItem('smcars-state-v1');if(raw){const d=JSON.parse(raw);if(d.user){setUser(d.user);setRole(d.user.role);setScreen('app')}if(d.saved)setSaved(d.saved);if(d.cars?.length)setCars(d.cars);if(d.enquiries)setEnquiries(d.enquiries);if(d.expenses)setExpenses(d.expenses);if(d.sales)setSales(d.sales)}}catch{}})()},[]);
+ useEffect(()=>{(async()=>{
+   try{
+    const raw=await AsyncStorage.getItem('smcars-state-v1');
+    if(raw){const d=JSON.parse(raw);if(d.saved)setSaved(d.saved);if(d.cars?.length)setCars(d.cars);if(d.enquiries)setEnquiries(d.enquiries);if(d.expenses)setExpenses(d.expenses);if(d.sales)setSales(d.sales)}
+    if(await api.hasSession()){
+      try{const serverUser=await api.currentUser();const u:User=toMobileUser(serverUser);setUser(u);setRole(u.role);setScreen('app')}
+      catch{await api.clearSession();await AsyncStorage.removeItem('smcars-auth-token')}
+    }
+   }catch{}
+  })()},[]);
  useEffect(()=>{if(user)AsyncStorage.setItem('smcars-state-v1',JSON.stringify({user,saved,cars,enquiries,expenses,sales})).catch(()=>{})},[user,saved,cars,enquiries,expenses,sales]);
  const notify=(m:string)=>{setToast(m);setTimeout(()=>setToast(''),2500)};
  const shown=useMemo(()=>cars.filter(c=>c.status==='Published'&&(category==='All'||(category==='Used'&&c.year<2024)||(category==='New'&&c.year>=2024)||(category==='Premium'&&c.price>=1200000)||(category==='SUVs'&&/creta|brezza|nexon|innova/i.test(c.title)))&&(`${c.title} ${c.brand} ${c.model} ${c.location}`.toLowerCase().includes(query.toLowerCase()))&&(filters.fuel==='Any'||filters.fuel===c.fuel)&&(!filters.maxPrice||c.price<=Number(filters.maxPrice)*100000)),[cars,category,query,filters]);
@@ -61,27 +71,21 @@ function AppBody(){
  const closeModal=()=>setModal('none');
  const isIOSPrompt=Platform.OS==='ios'&&typeof (Alert as any).prompt==='function';
  const authenticate=async()=>{
-  if(authMode==='forgot'){if(!email.trim()){notify('Enter your email address');return}Alert.alert('Password recovery','Password recovery requires a connected backend. No email was sent.');return}
-  if(!email.trim()||!password.trim()){notify('Enter email and password');return}
+  if(authMode==='forgot'){notify('Password recovery is not configured on the backend yet.');return}
+  if(!email.trim()||!password.trim()){notify('Enter email or mobile number and password');return}
   if(authMode==='signup'&&(!name.trim()||!phone.trim())){notify('Complete your profile details');return}
   if(role==='Dealer'&&authMode==='signup'&&!dealerName.trim()){notify('Enter your dealership name');return}
   setLoading(true);
   try{
-   const base=process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/$/,'');
-   if(base){
-    const endpoint=authMode==='signup'?'/auth/register':'/auth/login',payload=authMode==='signup'?{name,email,password,phone,role:role.toLowerCase(),dealerName}:{email,password};
-    const res=await fetch(base+endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}),body=await res.json().catch(()=>({}));
-    if(!res.ok)throw new Error(body?.message||body?.error?.message||'Authentication failed.');
-    const data=body?.data||body?.user||body,ret=data?.user||data,token=data?.accessToken||data?.token||body?.accessToken||body?.token;
-    if(!token)throw new Error('The API response did not include an access token.');
-    await AsyncStorage.setItem('smcars-auth-token',token);
-    const u:User={name:ret.name||name||email.split('@')[0],email:ret.email||email,phone:ret.phone||phone,role:String(ret.role||role).toLowerCase()==='dealer'?'Dealer':'Customer',dealerName:ret.dealerName||dealerName};
-    setUser(u);setRole(u.role);setScreen('app');setTab('Home');notify(authMode==='signup'?'Account created':'Welcome back');
-   }else{const u:User={name:authMode==='signup'?name.trim():(name.trim()||email.split('@')[0]),email:email.trim(),phone:phone.trim(),role,dealerName:role==='Dealer'?dealerName.trim():undefined,verified:false};setUser(u);setScreen('app');setTab('Home');notify(authMode==='signup'?'Demo account created':'Signed in to demo mode')}
-  }catch(e:any){notify(e?.message||'Something went wrong')}finally{setLoading(false)}
+   const session=authMode==='signup'
+    ? await api.register({name:name.trim(),phone:phone.trim(),email:email.includes('@')?email.trim().toLowerCase():undefined,password,confirmPassword:password,role:role==='Dealer'?'DEALER':'CUSTOMER',businessName:dealerName.trim(),city:'Tirunelveli'})
+    : await api.login(email.trim(),password,role==='Dealer'?'DEALER':'CUSTOMER');
+   const u:User=toMobileUser(session.user);
+   setUser(u);setRole(u.role);setScreen('app');setTab('Home');notify(authMode==='signup'?'Account created successfully':'Welcome back');
+  }catch(e:any){notify(e?.message||'Could not connect to the backend')}finally{setLoading(false)}
  };
- const socialLogin=(provider:'Google'|'Facebook')=>{const demoEmail=provider.toLowerCase()+'.demo@smassociate.local';const u:User={name:provider+' Demo User',email:demoEmail,phone:'',role,dealerName:role==='Dealer'?provider+' Demo Motors':undefined,verified:true};setUser(u);setRole(u.role);setScreen('app');setTab('Home');notify(provider+' demo login successful. Real OAuth can be connected later.')};
- const signOut=()=>Alert.alert('Sign out','Are you sure you want to sign out?',[{text:'Cancel',style:'cancel'},{text:'Sign out',style:'destructive',onPress:async()=>{setUser(null);setScreen('role');setTab('Home');await AsyncStorage.removeItem('smcars-state-v1');await AsyncStorage.removeItem('smcars-auth-token');notify('Signed out successfully')}}]);
+ const socialLogin=(provider:'Google'|'Facebook')=>{notify(provider+' sign-in is not configured yet. Use email/mobile and password.')};
+ const signOut=()=>Alert.alert('Sign out','Are you sure you want to sign out?',[{text:'Cancel',style:'cancel'},{text:'Sign out',style:'destructive',onPress:async()=>{await api.logout();setUser(null);setScreen('role');setTab('Home');await AsyncStorage.removeItem('smcars-state-v1');notify('Signed out successfully')}}]);
  const openSell=()=>{if(!user){notify('Sign in to list a car');setScreen('role');return}setForm({brand:'',model:'',variant:'',year:'2021',price:'',km:'',fuel:'Petrol',transmission:'Manual',owners:'1',location:'Tirunelveli, Tamil Nadu',description:''});setPhotoUris([]);setModal('sell')};
  const pickPhotos=async()=>{const perm=await ImagePicker.requestMediaLibraryPermissionsAsync();if(!perm.granted){notify('Allow photo access to add car photos');return}const r=await ImagePicker.launchImageLibraryAsync({mediaTypes:['images'],allowsMultipleSelection:true,selectionLimit:12,quality:.75});if(!r.canceled)setPhotoUris(r.assets.slice(0,12).map(a=>a.uri))};
  const submitListing=()=>{if(!form.brand?.trim()||!form.model?.trim()||!form.price||!form.km){notify('Enter make, model, price and kilometres');return}const count=mine.filter(c=>!['Sold','Paused'].includes(c.status)).length;if(user?.role==='Customer'&&count>=5){notify('Customer free plan allows 5 active listings');return}const car:Car={id:'mine-'+Date.now(),title:form.brand+' '+form.model,brand:form.brand,model:form.model,variant:form.variant||'Standard',year:Number(form.year)||2021,price:Number(form.price),km:Number(form.km),fuel:form.fuel||'Petrol',transmission:form.transmission||'Manual',owners:Number(form.owners)||1,location:form.location||'Tirunelveli, Tamil Nadu',image:photoUris[0]||HERO,rating:'New',status:'Pending Review',seller:user?.name||'You',sellerType:user?.role||'Customer',description:form.description||'Seller-provided information. Please verify documents and condition independently.'};setCars(p=>[car,...p]);closeModal();setTab('Listings');notify('Listing submitted for admin review')};
