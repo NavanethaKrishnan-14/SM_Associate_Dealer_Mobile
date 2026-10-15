@@ -80,7 +80,9 @@ export const api = {
   async register(input: { name: string; phone: string; email?: string; password: string; confirmPassword: string; role: 'CUSTOMER' | 'DEALER'; businessName?: string; city?: string }): Promise<Session> {
     const endpoint = input.role === 'DEALER' ? '/auth/register/dealer' : '/auth/register/customer';
     const { role, businessName, city, ...base } = input;
-    const payload = role === 'DEALER' ? { ...base, businessName, city: city || 'Tirunelveli' } : base;
+    const { email, ...requiredFields } = base;
+    const contactFields = { ...requiredFields, ...(email ? { email } : {}) };
+    const payload = role === 'DEALER' ? { ...contactFields, businessName, city: city || 'Tirunelveli' } : contactFields;
     const response: any = await this.request(endpoint, { method: 'POST', body: JSON.stringify(payload) }, false);
     const session: Session = response.data || response;
     if (!session?.accessToken || !session?.refreshToken || !session?.user) throw new Error('Registration response is missing user or session tokens.');
