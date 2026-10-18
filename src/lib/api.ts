@@ -131,6 +131,12 @@ export const api = {
     const response: any = await this.request('/auth/me');
     return response.data?.user || response.data;
   },
+  async updateCustomerProfile(input: { name?: string; phone?: string; email?: string | null }): Promise<ApiUser> {
+    const response: any = await this.request('/users/me', { method: 'PATCH', body: JSON.stringify(input) });
+    const user = response.data?.user || response.data;
+    if (!user?.id || !user?.name) throw new Error('The server did not confirm the profile update.');
+    return user as ApiUser;
+  },
   async logout(): Promise<void> {
     const refreshToken = await SecureStore.getItemAsync(REFRESH_KEY);
     try { if (refreshToken) await this.request('/auth/logout', { method: 'POST', body: JSON.stringify({ refreshToken }) }); } catch { /* Always clear local session. */ }
