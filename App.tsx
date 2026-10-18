@@ -6,8 +6,6 @@ import { StatusBar } from 'expo-status-bar';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
-import * as AuthSession from 'expo-auth-session';
-import * as WebBrowser from 'expo-web-browser';
 import { api, toMobileUser } from './src/lib/api';
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import RoleSelectionScreen from './src/screens/RoleSelectionScreen';
@@ -26,8 +24,6 @@ import authCarBg from './assets/Teal Luxury Sedan in Neon Showroom.png';
 import appLogo from './assets/Glossy Teal SM Automotive Emblem.png';
 import customerRoleBg from './assets/Sunset Luxury Car Showroom.png';
 import dealerRoleBg from './assets/Luxury Dealership Inspection.png';
-
-WebBrowser.maybeCompleteAuthSession();
 
 type Role = 'Customer' | 'Dealer';
 type Tab = 'Home' | 'Search' | 'Listings' | 'Saved' | 'Account';
@@ -60,21 +56,6 @@ function AppBody(){
  const [screen,setScreen]=useState<'splash'|'role'|'auth'|'signin'|'signup'|'forgot'|'app'>('splash'),[role,setRole]=useState<Role>('Customer'),[authMode,setAuthMode]=useState<'signin'|'signup'|'forgot'>('signin');
  const [name,setName]=useState(''),[email,setEmail]=useState(''),[phone,setPhone]=useState(''),[password,setPassword]=useState(''),[dealerName,setDealerName]=useState('');
  const [user,setUser]=useState<User|null>(null),[tab,setTab]=useState<Tab>('Home'),[saved,setSaved]=useState<string[]>([]),[compare,setCompare]=useState<string[]>([]),[cars,setCars]=useState<Car[]>(SEED);
- const socialRedirectUri=process.env.EXPO_PUBLIC_OAUTH_REDIRECT_URI||AuthSession.makeRedirectUri({scheme:Platform.OS==='web'?undefined:'smassociate',path:'oauth'});
- const [googleRequest,,promptGoogle]=AuthSession.useAuthRequest({
-  clientId:process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID||'',
-  responseType:AuthSession.ResponseType.IdToken,
-  scopes:['openid','email','profile'],
-  redirectUri:socialRedirectUri,
-  extraParams:{prompt:'select_account'},
- },{authorizationEndpoint:'https://accounts.google.com/o/oauth2/v2/auth'});
- const [facebookRequest,,promptFacebook]=AuthSession.useAuthRequest({
-  clientId:process.env.EXPO_PUBLIC_FACEBOOK_APP_ID||'',
-  responseType:AuthSession.ResponseType.Token,
-  scopes:['public_profile','email'],
-  redirectUri:socialRedirectUri,
- },{authorizationEndpoint:'https://www.facebook.com/v23.0/dialog/oauth'});
-
  const [selected,setSelected]=useState<Car|null>(null),[query,setQuery]=useState(''),[category,setCategory]=useState('All'),[filterOpen,setFilterOpen]=useState(false),[filters,setFilters]=useState({fuel:'Any',maxPrice:''});
  const [enquiries,setEnquiries]=useState<any[]>([]),[expenses,setExpenses]=useState<any[]>([]),[sales,setSales]=useState<any[]>([]),[modal,setModal]=useState<'sell'|'expense'|'sale'|'plan'|'enquiry'|'none'>('none'),[form,setForm]=useState<any>({}),[photoUris,setPhotoUris]=useState<string[]>([]),[leadMessage,setLeadMessage]=useState(''),[loading,setLoading]=useState(false),[toast,setToast]=useState(''),[dealerSection,setDealerSection]=useState('Overview'),[menuOpen,setMenuOpen]=useState(false),[popup,setPopup]=useState<any>(null);
 
