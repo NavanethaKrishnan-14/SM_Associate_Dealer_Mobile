@@ -16,7 +16,7 @@ export default function AuthScreen(p:Props){
  const [signupStep,setSignupStep]=useState(1);
  const [showPassword,setShowPassword]=useState(false);
  const [popup,setPopup]=useState<{title:string;message:string;icon?:any}|null>(null);
- const redirectUri=AuthSession.makeRedirectUri({scheme:'smassociate'});
+ const redirectUri=process.env.EXPO_PUBLIC_OAUTH_REDIRECT_URI?.trim()||AuthSession.makeRedirectUri({scheme:'smassociate'});
  const [googleRequest,,promptGoogle]=Google.useIdTokenAuthRequest({
   webClientId:process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
   iosClientId:process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
