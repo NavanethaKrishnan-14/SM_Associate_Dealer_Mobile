@@ -38,6 +38,7 @@ export default function AuthScreen(p:Props){
   {signup&&signupStep===1?<>
    {field('Full name',name,setName,'Your full name',{icon:'person-outline'})}
    {field('Mobile number',phone,setPhone,'Enter mobile number',{icon:'call-outline',keyboardType:'phone-pad',autoCapitalize:'none'})}
+   {field('Email address (optional)',email,setEmail,'you@example.com',{icon:'mail-outline',keyboardType:'email-address',autoCapitalize:'none'})}
    {role==='Dealer'?field('Dealership name',dealerName,setDealerName,'Dealership name',{icon:'business-outline'}):null}
   </>:null}
   {(!signup||signupStep===2)?<>
@@ -50,7 +51,7 @@ export default function AuthScreen(p:Props){
   <Pressable disabled={loading} onPress={submit} style={({pressed})=>[styles.submit,signup&&signupStep===1&&styles.submitPersonalDetails,pressed&&{opacity:.86},loading&&{opacity:.65}]}><LinearGradient colors={['#20F4AD','#00D995','#00B77D']} start={{x:0,y:0}} end={{x:1,y:1}} style={styles.submitGradient}><Text style={styles.submitText}>{loading?'Please wait…':signup?(signupStep===1?'Continue to account setup':'Create Account'):forgot?'Continue':'Sign In'}</Text></LinearGradient></Pressable>
   {!forgot&&!signup?<><View style={styles.dividerRow}><View style={styles.rule}/><Text style={styles.orText}>or continue with</Text><View style={styles.rule}/></View><View style={styles.socialRow}><Pressable onPress={()=>showSocialSignInUnavailable('Google')} style={styles.socialButton}><MaterialCommunityIcons name="google" size={17} color="#4285F4"/><Text style={styles.socialText}>Google</Text></Pressable><Pressable onPress={()=>showSocialSignInUnavailable('Facebook')} style={styles.socialButton}><MaterialCommunityIcons name="facebook" size={18} color="#4296FF"/><Text style={styles.socialText}>Facebook</Text></Pressable></View></>:null}
   {signup&&signupStep===2?<Pressable onPress={()=>setSignupStep(1)} style={styles.stepBack}><Ionicons name="arrow-back" size={14} color="#31E6B4"/><Text style={styles.stepBackText}>Back to personal details</Text></Pressable>:null}
-  <View style={styles.footerRow}><Text style={styles.footerText}>{signup?'Already have an account?':forgot?'Remember your password?':"Don't have an account?"} </Text><Pressable onPress={()=>{setConfirmPassword('');setAcceptedTerms(false);const next=signup||forgot?'signin':'signup';setAuthMode(next);setScreen(next)}}><Text style={styles.footerLink}>{signup||forgot?'Go to Sign In':'Go to Sign Up'}</Text></Pressable></View>
+  <View style={styles.footerRow}><Text style={styles.footerText}>{signup?'Already have an account?':forgot?'Remember your password?':"Don't have an account?"} </Text><Pressable onPress={()=>{setConfirmPassword('');setAcceptedTerms(false);const next=signup||forgot?'signin':'signup';if(next==='signup')setEmail('');setAuthMode(next);setScreen(next)}}><Text style={styles.footerLink}>{signup||forgot?'Go to Sign In':'Go to Sign Up'}</Text></Pressable></View>
  </View>
  </ScrollView></KeyboardAvoidingView><PremiumPopup visible={!!popup} title={popup?.title||''} message={popup?.message||''} icon={popup?.icon||'shield-checkmark-outline'} onClose={()=>setPopup(null)}/></SafeAreaView>;
 }
