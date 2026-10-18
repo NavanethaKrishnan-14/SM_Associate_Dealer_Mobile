@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 type Props = any;
 
 export default function AccountScreen(p: Props) {
-  const { s, C, Header, Glass, user, setUser, showPopup, setScreen, Setting, Section, Button, signOut } = p;
+  const { s, C, Header, Glass, user, setUser, showPopup, setScreen, Setting, Section, Button, signOut, api, notify } = p;
 
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
@@ -23,17 +23,39 @@ export default function AccountScreen(p: Props) {
             </View>
           </View>
           <Pressable
-            onPress={() => showPopup(
-              'Edit profile name',
-              'Enter your display name.',
-              [
-                { text: 'Cancel', style: 'cancel' },
-                { text: 'Save', onPress: (value?: string) => {
-                  if (value?.trim() && user) setUser({ ...user, name: value.trim() });
-                } },
-              ],
-              { inputValue: user?.name || '', inputPlaceholder: 'Display name' },
-            )}
+            accessibilityRole="button"
+            accessibilityLabel="Edit profile name"
+            onPress={() => {
+              if (!user) return;
+              if (user.role !== 'Customer') {
+                showPopup('Profile is read-only', 'Dealer profile changes are not available in the mobile app yet. Your displayed details will remain unchanged.', undefined, { icon: 'information-circle-outline' });
+                return;
+              }
+              showPopup(
+                'Edit profile name',
+                'Your name will be saved to your account.',
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Save', onPress: (value?: string) => {
+                    const name = value?.trim();
+                    if (!name || name.length < 2) {
+                      showPopup('Name not updated', 'Enter a name containing at least 2 characters.');
+                      return;
+                    }
+                    void (async () => {
+                      try {
+                        const updated = await api.updateCustomerProfile({ name });
+                        setUser({ ...user, name: updated.name, email: updated.email || '', phone: updated.phone || user.phone });
+                        notify?.('Profile updated successfully');
+                      } catch (error: any) {
+                        showPopup('Profile not updated', error?.message || 'Could not save your profile. Please try again.');
+                      }
+                    })();
+                  } },
+                ],
+                { inputValue: user.name || '', inputPlaceholder: 'Display name' },
+              );
+            }}
           >
             <Ionicons name="create-outline" color={C.teal} size={22} />
           </Pressable>
