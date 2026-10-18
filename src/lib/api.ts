@@ -187,19 +187,18 @@ export const api = {
   async changeDealerCarStatus(carId: string, status: 'DRAFT'|'PENDING_APPROVAL'|'RESERVED'|'SOLD'|'ARCHIVED'): Promise<any> {
     return this.request(`/dealer/cars/${encodeURIComponent(carId)}/status`, { method: 'PATCH', body: JSON.stringify({ status }) });
   },
-  async dealerExpenses(): Promise<any[]> {
-    const response: any = await this.request('/dealer/expenses');
-    return Array.isArray(response.data) ? response.data : response.data?.items || [];
+  // The shared backend does not yet expose a dealer expense ledger. Do not call
+  // known-missing routes: their 404 response previously caused Promise.all()
+  // to discard otherwise valid dealer enquiries and test-drive data.
+  async dealerExpenses(): Promise<any[]> { return []; },
+  async createDealerExpense(_input: { carId: string; category: string; amount: number; note?: string }): Promise<any> {
+    throw new Error('Vehicle expense tracking is not available yet because the backend expense API has not been implemented.');
   },
-  async createDealerExpense(input: { carId: string; category: string; amount: number; note?: string }): Promise<any> {
-    return this.request('/dealer/expenses', { method: 'POST', body: JSON.stringify(input) });
-  },
-  async dealerSales(): Promise<any[]> {
-    const response: any = await this.request('/dealer/sales');
-    return Array.isArray(response.data) ? response.data : response.data?.items || [];
-  },
-  async recordDealerSale(input: { carId: string; salePrice: number; acquisitionCost: number }): Promise<any> {
-    return this.request('/dealer/sales', { method: 'POST', body: JSON.stringify(input) });
+  // Sales/acquisition accounting is also not implemented by the shared backend.
+  // Keep the UI explicit rather than presenting locally persisted figures as real records.
+  async dealerSales(): Promise<any[]> { return []; },
+  async recordDealerSale(_input: { carId: string; salePrice: number; acquisitionCost: number }): Promise<any> {
+    throw new Error('Sales and profit tracking are not available yet because the backend sales API has not been implemented.');
   },
   async dealerEnquiries(type?: 'CAR_ENQUIRY' | 'SELL_CAR'): Promise<any[]> {
     const response: any = await this.request(`/dealer/enquiries${type ? `?type=${encodeURIComponent(type)}` : ''}`);
