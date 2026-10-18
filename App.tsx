@@ -161,28 +161,7 @@ function AppBody(){
   }catch(e:any){notify(e?.message||'Could not connect to the backend')}finally{setLoading(false)}
  };
  const socialLogin=async(provider:'Google'|'Facebook')=>{
-  // The shared backend has no verified Google/Facebook auth routes yet.
-  // Fail before opening a provider browser so the UI cannot imply OAuth is supported.
   notify(`${provider} sign-in is not supported by the backend yet. Use phone/email and password.`);
-  return;
-  if(provider==='Google'&&!googleRequest){notify('Google sign-in is still loading. Please try again.');return}
-  if(provider==='Facebook'&&!facebookRequest){notify('Facebook sign-in is still loading. Please try again.');return}
-  if(provider==='Google'&&!process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID){notify('Google sign-in is not configured. Add EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID to your mobile environment.');return}
-  if(provider==='Facebook'&&!process.env.EXPO_PUBLIC_FACEBOOK_APP_ID){notify('Facebook sign-in is not configured. Add EXPO_PUBLIC_FACEBOOK_APP_ID to your mobile environment.');return}
-  setLoading(true);
-  try{
-   const result=provider==='Google'?await promptGoogle():await promptFacebook();
-   if(result.type!=='success'){if(result.type==='error')notify(provider+' sign-in could not be completed. Please try again.');return}
-   const token=provider==='Google'?result.params.id_token:result.params.access_token;
-   if(!token){notify(provider+' did not return a valid authentication token.');return}
-   const session=provider==='Google'
-    ? await api.loginWithGoogle(token,role==='Dealer'?'DEALER':'CUSTOMER',{businessName:dealerName.trim(),city:'Tirunelveli'})
-    : await api.loginWithFacebook(token,role==='Dealer'?'DEALER':'CUSTOMER',{businessName:dealerName.trim(),city:'Tirunelveli'});
-   const signedInUser:User=toMobileUser(session.user);
-   setUser(signedInUser);setRole(signedInUser.role);setScreen('app');setTab('Home');
-   notify(provider+' sign-in successful');
-  }catch(e:any){notify(e?.message||provider+' sign-in failed. Please try again.')}
-  finally{setLoading(false)}
  };
  const signOut=async()=>{
   try{
