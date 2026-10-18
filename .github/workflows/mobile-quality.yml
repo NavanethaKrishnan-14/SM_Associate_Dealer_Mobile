@@ -24,6 +24,8 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install --no-audit --no-fund
+      - name: Deduplicate native dependencies
+        run: npm dedupe --no-audit --no-fund
       - name: Run TypeScript checks
         run: npm run typecheck
       - name: Check Expo configuration
