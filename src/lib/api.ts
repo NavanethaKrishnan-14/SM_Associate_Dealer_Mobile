@@ -64,19 +64,19 @@ async function refreshSession(): Promise<boolean> {
 }
 
 export const api = {
-  async request<T = any>(path: string, init: RequestInit = {}, authenticated = true): Promise<T> {
+  async request<T = any>(path: string, init: RequestInit = {}, authenticated = true, timeoutMs = 15000): Promise<T> {
     const accessToken = authenticated ? await SecureStore.getItemAsync(ACCESS_KEY) : null;
     const headers = new Headers(init.headers || {});
     if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`);
     try {
-      return await rawRequest<T>(path, { ...init, headers });
+      return await rawRequest<T>(path, { ...init, headers }, timeoutMs);
     } catch (error: any) {
       if (authenticated && error?.status === 401) {
         if (await refreshSession()) {
           const nextToken = await SecureStore.getItemAsync(ACCESS_KEY);
           const retryHeaders = new Headers(init.headers || {});
           if (nextToken) retryHeaders.set('Authorization', `Bearer ${nextToken}`);
-          return rawRequest<T>(path, { ...init, headers: retryHeaders });
+          return rawRequest<T>(path, { ...init, headers: retryHeaders }, timeoutMs);
         }
         await this.clearSession();
       }
@@ -84,7 +84,15 @@ export const api = {
     }
   },
   async login(identifier: string, password: string, role: 'CUSTOMER' | 'DEALER'): Promise<Session> {
-    const response: any = await this.request('/auth/login', { method: 'POST', body: JSON.stringify({ identifier: identifier.includes('@') ? identifier.trim().toLowerCase() : identifier.trim().replace(/[^0-9+]/g, ''), password, role }) }, false);
+    const normalizedIdentifier = identifier.includes('@')
+      ? identifier.trim().toLowerCase()
+      : identifier.trim().replace(/[^0-9+]/g, '');
+    const response: any = await this.request(
+      '/auth/login',
+      { method: 'POST', body: JSON.stringify({ identifier: normalizedIdentifier, password, role }) },
+      false,
+      30000,
+    );
     const session: Session = response.data || response;
     if (!session?.accessToken || !session?.refreshToken || !session?.user) throw new Error('Login response is missing user or session tokens.');
     await SecureStore.setItemAsync(ACCESS_KEY, session.accessToken);
@@ -97,7 +105,12 @@ export const api = {
     const { email, ...requiredFields } = base;
     const contactFields = { ...requiredFields, ...(email ? { email } : {}) };
     const payload = role === 'DEALER' ? { ...contactFields, businessName, city: city || 'Tirunelveli' } : contactFields;
-    const response: any = await this.request(endpoint, { method: 'POST', body: JSON.stringify(payload) }, false);
+    const response: any = await this.request(
+      endpoint,
+      { method: 'POST', body: JSON.stringify(payload) },
+      false,
+      30000,
+    );
     const session: Session = response.data || response;
     if (!session?.accessToken || !session?.refreshToken || !session?.user) throw new Error('Registration response is missing user or session tokens.');
     await SecureStore.setItemAsync(ACCESS_KEY, session.accessToken);
