@@ -65,9 +65,9 @@ export default function AccountScreen(p: Props) {
             <Ionicons name="shield-checkmark-outline" color={C.gold} size={22} />
             <View style={{ flex: 1 }}>
               <Text style={s.carName}>Dealer verification</Text>
-              <Text style={s.muted}>Pending until reviewed by an authorized admin.</Text>
+              <Text style={s.muted}>{user?.verified ? 'Your dealer profile has been approved.' : 'Your dealer profile is awaiting review by an authorized admin.'}</Text>
             </View>
-            <Text style={s.pending}>PENDING</Text>
+            <Text style={s.pending}>{user?.verified ? 'APPROVED' : 'PENDING'}</Text>
           </Glass>
         ) : null}
         <Section title="Preferences" />
