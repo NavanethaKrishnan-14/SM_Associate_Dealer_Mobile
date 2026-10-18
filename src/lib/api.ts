@@ -105,27 +105,11 @@ export const api = {
     return session;
   },
 
-  async loginWithGoogle(idToken: string, role: 'CUSTOMER' | 'DEALER', dealer?: { businessName?: string; city?: string }): Promise<Session> {
-    const response: any = await this.request('/auth/google', {
-      method: 'POST',
-      body: JSON.stringify({ idToken, role, ...(dealer?.businessName ? { businessName: dealer.businessName } : {}), ...(dealer?.city ? { city: dealer.city } : {}) }),
-    }, false);
-    const session: Session = response.data || response;
-    if (!session?.accessToken || !session?.refreshToken || !session?.user) throw new Error('Google login response is missing user or session tokens.');
-    await SecureStore.setItemAsync(ACCESS_KEY, session.accessToken);
-    await SecureStore.setItemAsync(REFRESH_KEY, session.refreshToken);
-    return session;
+  async loginWithGoogle(_idToken: string, _role: 'CUSTOMER' | 'DEALER', _dealer?: { businessName?: string; city?: string }): Promise<Session> {
+    throw new Error('Google sign-in is not supported by the current backend yet. Please sign in with your phone/email and password.');
   },
-  async loginWithFacebook(accessToken: string, role: 'CUSTOMER' | 'DEALER', dealer?: { businessName?: string; city?: string }): Promise<Session> {
-    const response: any = await this.request('/auth/facebook', {
-      method: 'POST',
-      body: JSON.stringify({ accessToken, role, ...(dealer?.businessName ? { businessName: dealer.businessName } : {}), ...(dealer?.city ? { city: dealer.city } : {}) }),
-    }, false);
-    const session: Session = response.data || response;
-    if (!session?.accessToken || !session?.refreshToken || !session?.user) throw new Error('Facebook login response is missing user or session tokens.');
-    await SecureStore.setItemAsync(ACCESS_KEY, session.accessToken);
-    await SecureStore.setItemAsync(REFRESH_KEY, session.refreshToken);
-    return session;
+  async loginWithFacebook(_accessToken: string, _role: 'CUSTOMER' | 'DEALER', _dealer?: { businessName?: string; city?: string }): Promise<Session> {
+    throw new Error('Facebook sign-in is not supported by the current backend yet. Please sign in with your phone/email and password.');
   },
   async currentUser(): Promise<ApiUser> {
     const response: any = await this.request('/auth/me');
@@ -156,7 +140,8 @@ export const api = {
     await this.request(`/favorites/${encodeURIComponent(carId)}`, { method: 'DELETE' });
   },
   async submitSellCarRequest(input: { contactName: string; contactPhone: string; city: string; brand: string; model: string; year?: number; kms?: number }): Promise<any> {
-    return this.request('/sell-car-requests', { method: 'POST', body: JSON.stringify(input) }, false);
+    // This route is customer-authenticated; include the stored Bearer token.
+    return this.request('/sell-car-requests', { method: 'POST', body: JSON.stringify(input) });
   },
   async sendEnquiry(carId: string, message: string): Promise<any> {
     return this.request('/enquiries', { method: 'POST', body: JSON.stringify({ carId, message }) });
