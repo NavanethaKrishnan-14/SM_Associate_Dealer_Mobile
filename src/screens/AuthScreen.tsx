@@ -19,7 +19,11 @@ export default function AuthScreen(p:Props){
  const forgot=authMode==='forgot';
  const submit=()=>{
   if(signup && signupStep===1){
-   if(!name.trim() || !phone.trim() || (role==='Dealer'&&!dealerName.trim())){setPopup({title:'Complete your details',message:'Please fill in all required personal details before continuing.',icon:'person-circle-outline'});return;}
+   const normalizedPhone=phone.trim().replace(/[^0-9+]/g,'');
+   if(name.trim().length<2){setPopup({title:'Enter your name',message:'Please enter your full name before continuing.',icon:'person-circle-outline'});return;}
+   if(!/^\+?[0-9]{10,15}$/.test(normalizedPhone)){setPopup({title:'Check your mobile number',message:'Enter a valid mobile number with 10–15 digits, including country code if needed.',icon:'call-outline'});return;}
+   if(email.trim()&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())){setPopup({title:'Check your email',message:'Enter a valid email address or leave this field blank.',icon:'mail-outline'});return;}
+   if(role==='Dealer'&&dealerName.trim().length<2){setPopup({title:'Enter dealership name',message:'Please enter your dealership or business name before continuing.',icon:'business-outline'});return;}
    setSignupStep(2);
    return;
   }
