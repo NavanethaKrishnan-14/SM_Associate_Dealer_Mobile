@@ -125,13 +125,23 @@ function AppBody(){
  const isIOSPrompt=Platform.OS==='ios'&&typeof (Alert as any).prompt==='function';
  const authenticate=async()=>{
   if(authMode==='forgot'){notify('Password recovery is not configured on the backend yet.');return}
-  if(!password.trim()){notify('Enter your password');return}
+  if(!password){notify('Enter your password');return}
+  if(password.length<8){notify('Your password must contain at least 8 characters.');return}
   if(authMode==='signup'){
    const normalizedPhone=phone.trim().replace(/[^0-9+]/g,'');
-   if(!name.trim()||!normalizedPhone){notify('Complete your profile details');return}
-   if(!/^\+?[0-9]{10,15}$/.test(normalizedPhone)){notify('Enter a valid phone number with 10–15 digits');return}
-   if(role==='Dealer'&&!dealerName.trim()){notify('Enter your dealership name');return}
-  }else if(!email.trim()){notify('Enter your email address or mobile number');return}
+   if(name.trim().length<2){notify('Enter your full name (at least 2 characters).');return}
+   if(!/^\+?[0-9]{10,15}$/.test(normalizedPhone)){notify('Enter a valid mobile number with 10–15 digits, including country code if needed.');return}
+   if(role==='Dealer'&&dealerName.trim().length<2){notify('Enter your dealership name (at least 2 characters).');return}
+  }else{
+   const identifier=email.trim();
+   if(!identifier){notify('Enter your email address or mobile number');return}
+   if(identifier.includes('@')){
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier)){notify('Enter a valid email address.');return}
+   }else{
+    const normalizedPhone=identifier.replace(/[^0-9+]/g,'');
+    if(!/^\+?[0-9]{10,15}$/.test(normalizedPhone)){notify('Enter a valid mobile number or email address.');return}
+   }
+  }
   setLoading(true);
   try{
    const session=authMode==='signup'
