@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import * as AuthSession from 'expo-auth-session';
+import * as Google from 'expo-auth-session/providers/google';
 import { Image, ImageBackground, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -6,7 +8,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import PremiumPopup from './PremiumPopup';
 
-type Props = { s:any; C:any; authCarBg:any; appLogo:any; insets:any; role:string; authMode:string; setAuthMode:(mode:'signin'|'signup'|'forgot')=>void; setScreen:(screen:'role'|'signup'|'auth'|'forgot'|'signin'|'splash'|'app')=>void; name:string; setName:(v:string)=>void; phone:string; setPhone:(v:string)=>void; dealerName:string; setDealerName:(v:string)=>void; email:string; setEmail:(v:string)=>void; password:string; setPassword:(v:string)=>void; loading:boolean; authenticate:()=>void; socialLogin:(provider:'Google'|'Facebook')=>void; Field:any; Button:any; Glass:any };
+type Props = { s:any; C:any; authCarBg:any; appLogo:any; insets:any; role:string; authMode:string; setAuthMode:(mode:'signin'|'signup'|'forgot')=>void; setScreen:(screen:'role'|'signup'|'auth'|'forgot'|'signin'|'splash'|'app')=>void; name:string; setName:(v:string)=>void; phone:string; setPhone:(v:string)=>void; dealerName:string; setDealerName:(v:string)=>void; email:string; setEmail:(v:string)=>void; password:string; setPassword:(v:string)=>void; loading:boolean; authenticate:()=>void; socialLogin:(provider:'Google'|'Facebook',token:string)=>void; Field:any; Button:any; Glass:any };
 export default function AuthScreen(p:Props){
  const {s,C,authCarBg,appLogo,insets,role,authMode,setAuthMode,setScreen,name,setName,phone,setPhone,dealerName,setDealerName,email,setEmail,password,setPassword,loading,authenticate,socialLogin}=p;
  const [confirmPassword,setConfirmPassword]=useState('');
@@ -14,7 +16,45 @@ export default function AuthScreen(p:Props){
  const [signupStep,setSignupStep]=useState(1);
  const [showPassword,setShowPassword]=useState(false);
  const [popup,setPopup]=useState<{title:string;message:string;icon?:any}|null>(null);
- const showSocialSignInUnavailable=(provider:'Google'|'Facebook')=>setPopup({title:`${provider} sign-in unavailable`,message:provider==='Google' ? "Google sign-in isn't supported by the backend yet. Please sign in using your mobile number/email and password." : "Facebook sign-in isn't supported by the backend yet. Please sign in using your mobile number/email and password.",icon:'information-circle-outline'});
+ const redirectUri=process.env.EXPO_PUBLIC_OAUTH_REDIRECT_URI?.trim()||AuthSession.makeRedirectUri({scheme:'smassociate'});
+ const [googleRequest,,promptGoogle]=Google.useIdTokenAuthRequest({
+  webClientId:process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+  iosClientId:process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+  androidClientId:process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
+  redirectUri,
+  scopes:['openid','profile','email'],
+ });
+ const facebookAppId=process.env.EXPO_PUBLIC_FACEBOOK_APP_ID||'';
+ const [facebookRequest,,promptFacebook]=AuthSession.useAuthRequest({
+  clientId:facebookAppId,
+  redirectUri,
+  responseType:AuthSession.ResponseType.Token,
+  scopes:['public_profile','email'],
+ },{authorizationEndpoint:'https://www.facebook.com/v22.0/dialog/oauth'});
+ const startGoogleSignIn=async()=>{
+  if(!process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID&&!process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID&&!process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID){
+   setPopup({title:'Google sign-in setup required',message:'Add your Google Web, Android and/or iOS OAuth client ID to the mobile environment, then rebuild the app.',icon:'information-circle-outline'});return;
+  }
+  if(!googleRequest){setPopup({title:'Google sign-in unavailable',message:'The Google authentication request could not be prepared. Check your OAuth client IDs and app redirect configuration.',icon:'alert-circle-outline'});return;}
+  try{
+   const result=await promptGoogle();
+   if(result.type!=='success')return;
+   const token=(result as any).params?.id_token||(result as any).authentication?.idToken;
+   if(!token)throw new Error('Google did not return an ID token. Check that the Web client ID is configured.');
+   socialLogin('Google',token);
+  }catch(error:any){setPopup({title:'Google sign-in failed',message:error?.message||'Please try again.',icon:'alert-circle-outline'})}
+ };
+ const startFacebookSignIn=async()=>{
+  if(!facebookAppId){setPopup({title:'Facebook sign-in setup required',message:'Add your Facebook App ID to the mobile environment and configure the same App ID and App Secret in the backend.',icon:'information-circle-outline'});return;}
+  if(!facebookRequest){setPopup({title:'Facebook sign-in unavailable',message:'The Facebook authentication request could not be prepared. Check the Facebook App ID and redirect settings.',icon:'alert-circle-outline'});return;}
+  try{
+   const result=await promptFacebook();
+   if(result.type!=='success')return;
+   const token=(result as any).params?.access_token||(result as any).authentication?.accessToken;
+   if(!token)throw new Error('Facebook did not return an access token. Check the Facebook app OAuth settings.');
+   socialLogin('Facebook',token);
+  }catch(error:any){setPopup({title:'Facebook sign-in failed',message:error?.message||'Please try again.',icon:'alert-circle-outline'})}
+ };
  const signup=authMode==='signup';
  const forgot=authMode==='forgot';
  const submit=()=>{
@@ -53,7 +93,7 @@ export default function AuthScreen(p:Props){
   </>:null}
   {!signup&&!forgot?<Pressable onPress={()=>{setAuthMode('forgot');setScreen('forgot')}} style={styles.forgot}><Text style={styles.tealText}>Forgot password?</Text></Pressable>:null}
   <Pressable disabled={loading} onPress={submit} style={({pressed})=>[styles.submit,signup&&signupStep===1&&styles.submitPersonalDetails,pressed&&{opacity:.86},loading&&{opacity:.65}]}><LinearGradient colors={['#20F4AD','#00D995','#00B77D']} start={{x:0,y:0}} end={{x:1,y:1}} style={styles.submitGradient}><Text style={styles.submitText}>{loading?'Please wait…':signup?(signupStep===1?'Continue to account setup':'Create Account'):forgot?'Continue':'Sign In'}</Text></LinearGradient></Pressable>
-  {!forgot&&!signup?<><View style={styles.dividerRow}><View style={styles.rule}/><Text style={styles.orText}>or continue with</Text><View style={styles.rule}/></View><View style={styles.socialRow}><Pressable onPress={()=>showSocialSignInUnavailable('Google')} style={styles.socialButton}><MaterialCommunityIcons name="google" size={17} color="#4285F4"/><Text style={styles.socialText}>Google</Text></Pressable><Pressable onPress={()=>showSocialSignInUnavailable('Facebook')} style={styles.socialButton}><MaterialCommunityIcons name="facebook" size={18} color="#4296FF"/><Text style={styles.socialText}>Facebook</Text></Pressable></View></>:null}
+  {!forgot&&!signup?<><View style={styles.dividerRow}><View style={styles.rule}/><Text style={styles.orText}>or continue with</Text><View style={styles.rule}/></View><View style={styles.socialRow}><Pressable disabled={loading} onPress={()=>void startGoogleSignIn()} style={[styles.socialButton,loading&&{opacity:.55}]}><MaterialCommunityIcons name="google" size={17} color="#4285F4"/><Text style={styles.socialText}>Google</Text></Pressable><Pressable disabled={loading} onPress={()=>void startFacebookSignIn()} style={[styles.socialButton,loading&&{opacity:.55}]}><MaterialCommunityIcons name="facebook" size={18} color="#4296FF"/><Text style={styles.socialText}>Facebook</Text></Pressable></View></>:null}
   {signup&&signupStep===2?<Pressable onPress={()=>setSignupStep(1)} style={styles.stepBack}><Ionicons name="arrow-back" size={14} color="#31E6B4"/><Text style={styles.stepBackText}>Back to personal details</Text></Pressable>:null}
   <View style={styles.footerRow}><Text style={styles.footerText}>{signup?'Already have an account?':forgot?'Remember your password?':"Don't have an account?"} </Text><Pressable onPress={()=>{setConfirmPassword('');setAcceptedTerms(false);const next=signup||forgot?'signin':'signup';if(next==='signup')setEmail('');setAuthMode(next);setScreen(next)}}><Text style={styles.footerLink}>{signup||forgot?'Go to Sign In':'Go to Sign Up'}</Text></Pressable></View>
  </View>

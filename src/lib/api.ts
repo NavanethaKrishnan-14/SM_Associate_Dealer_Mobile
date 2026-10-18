@@ -118,11 +118,29 @@ export const api = {
     return session;
   },
 
-  async loginWithGoogle(_idToken: string, _role: 'CUSTOMER' | 'DEALER', _dealer?: { businessName?: string; city?: string }): Promise<Session> {
-    throw new Error('Google sign-in is not supported by the current backend yet. Please sign in with your phone/email and password.');
+  async loginWithGoogle(idToken: string, role: 'CUSTOMER' | 'DEALER', dealer?: { businessName?: string; city?: string }): Promise<Session> {
+    if (!idToken || idToken.length < 20) throw new Error('Google did not return a valid ID token.');
+    const response: any = await this.request('/auth/google', {
+      method: 'POST',
+      body: JSON.stringify({ idToken, role, ...(role === 'DEALER' ? { businessName: dealer?.businessName, city: dealer?.city } : {}) }),
+    }, false, 30000);
+    const session: Session = response?.data || response;
+    if (!session?.accessToken || !session?.refreshToken || !session?.user) throw new Error('Google sign-in response is missing user or session tokens.');
+    await SecureStore.setItemAsync(ACCESS_KEY, session.accessToken);
+    await SecureStore.setItemAsync(REFRESH_KEY, session.refreshToken);
+    return session;
   },
-  async loginWithFacebook(_accessToken: string, _role: 'CUSTOMER' | 'DEALER', _dealer?: { businessName?: string; city?: string }): Promise<Session> {
-    throw new Error('Facebook sign-in is not supported by the current backend yet. Please sign in with your phone/email and password.');
+  async loginWithFacebook(accessToken: string, role: 'CUSTOMER' | 'DEALER', dealer?: { businessName?: string; city?: string }): Promise<Session> {
+    if (!accessToken || accessToken.length < 20) throw new Error('Facebook did not return a valid access token.');
+    const response: any = await this.request('/auth/facebook', {
+      method: 'POST',
+      body: JSON.stringify({ accessToken, role, ...(role === 'DEALER' ? { businessName: dealer?.businessName, city: dealer?.city } : {}) }),
+    }, false, 30000);
+    const session: Session = response?.data || response;
+    if (!session?.accessToken || !session?.refreshToken || !session?.user) throw new Error('Facebook sign-in response is missing user or session tokens.');
+    await SecureStore.setItemAsync(ACCESS_KEY, session.accessToken);
+    await SecureStore.setItemAsync(REFRESH_KEY, session.refreshToken);
+    return session;
   },
   async currentUser(): Promise<ApiUser> {
     const response: any = await this.request('/auth/me');

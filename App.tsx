@@ -152,8 +152,20 @@ function AppBody(){
    setUser(u);setRole(u.role);setScreen('app');setTab('Home');notify(authMode==='signup'?'Account created successfully':'Welcome back');
   }catch(e:any){notify(e?.message||'Could not connect to the backend')}finally{setLoading(false)}
  };
- const socialLogin=async(provider:'Google'|'Facebook')=>{
-  notify(`${provider} sign-in isn't available yet. Please sign in using your mobile number/email and password.`);
+ const socialLogin=async(provider:'Google'|'Facebook',providerToken:string)=>{
+  setLoading(true);
+  try{
+   const socialRole=role==='Dealer'?'DEALER':'CUSTOMER';
+   const dealer=role==='Dealer'?{businessName:dealerName.trim(),city:'Tirunelveli'}:undefined;
+   const session=provider==='Google'
+    ? await api.loginWithGoogle(providerToken,socialRole,dealer)
+    : await api.loginWithFacebook(providerToken,socialRole,dealer);
+   const u:User=toMobileUser(session.user);
+   setUser(u);setRole(u.role);setScreen('app');setTab('Home');
+   notify('Signed in with '+provider);
+  }catch(e:any){
+   notify(e?.message||provider+' sign-in could not be completed');
+  }finally{setLoading(false)}
  };
  const signOut=async()=>{
   try{
