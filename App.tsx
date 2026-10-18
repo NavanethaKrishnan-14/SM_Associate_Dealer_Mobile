@@ -81,14 +81,14 @@ function AppBody(){
  useEffect(()=>{(async()=>{
    try{
     const raw=await AsyncStorage.getItem('smcars-state-v1');
-    if(raw){const d=JSON.parse(raw);if(d.saved)setSaved(d.saved);if(d.enquiries)setEnquiries(d.enquiries);if(d.expenses)setExpenses(d.expenses);if(d.sales)setSales(d.sales)}
+    if(raw){const d=JSON.parse(raw);if(Array.isArray(d.saved))setSaved(d.saved)}
     if(await api.hasSession()){
       try{const serverUser=await api.currentUser();const u:User=toMobileUser(serverUser);setUser(u);setRole(u.role);setScreen('app')}
       catch{await api.clearSession();await AsyncStorage.removeItem('smcars-auth-token')}
     }
    }catch{}
   })()},[]);
- useEffect(()=>{if(user)AsyncStorage.setItem('smcars-state-v1',JSON.stringify({user,saved,cars,enquiries,expenses,sales})).catch(()=>{})},[user,saved,cars,enquiries,expenses,sales]);
+ useEffect(()=>{if(user)AsyncStorage.setItem('smcars-state-v1',JSON.stringify({saved})).catch(()=>{})},[user,saved]);
  useEffect(()=>{let active=true;if(user?.role==='Customer'){api.favorites().then(items=>{if(active)setSaved(items.map((item:any)=>String(item.car?.id||item.carId)).filter(Boolean))}).catch(()=>{})}else if(user?.role==='Dealer'){setSaved([])}return()=>{active=false}},[user?.role]);
  useEffect(()=>{let active=true;if(user?.role==='Dealer'){api.dealerCars().then(items=>{if(!active)return;const mapped:Car[]=items.map((car:any)=>{const statusMap:Record<string,ListingStatus>={DRAFT:'Draft',PENDING_APPROVAL:'Pending Review',AVAILABLE:'Published',RESERVED:'Reserved',SOLD:'Sold',ARCHIVED:'Paused',REJECTED:'Rejected'};return {id:String(car.id),title:String(car.title||[car.brand?.name,car.model?.name].filter(Boolean).join(' ')||'Vehicle'),brand:String(car.brand?.name||''),model:String(car.model?.name||''),variant:String(car.variant||'Standard'),year:Number(car.manufacturingYear)||new Date().getFullYear(),price:Number(car.priceInr)||0,km:Number(car.mileageKm)||0,fuel:String(car.fuelType||'PETROL').toLowerCase().replace(/^./,(v:string)=>v.toUpperCase()),transmission:String(car.transmission||'MANUAL').toLowerCase().replace(/^./,(v:string)=>v.toUpperCase()),owners:Number(car.ownershipCount)||1,location:[car.city,car.state].filter(Boolean).join(', '),image:String(car.images?.find((image:any)=>image.isCover)?.imageUrl||car.images?.[0]?.imageUrl||HERO),rating:'—',status:statusMap[String(car.status)]||'Draft',seller:user.name,sellerType:'Dealer',description:String(car.description||'') }});setCars(prev=>[...prev.filter(c=>c.seller!==user.name),...mapped])}).catch((e:any)=>{if(active)setToast(e?.message||'Could not load dealer inventory')})}return()=>{active=false}},[user?.role,user?.name]);
  useEffect(()=>{let active=true;if(user?.role!=='Dealer')return()=>{active=false};(async()=>{try{
