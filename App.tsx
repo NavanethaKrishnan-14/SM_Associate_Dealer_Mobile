@@ -131,6 +131,7 @@ function AppBody(){
    const normalizedPhone=phone.trim().replace(/[^0-9+]/g,'');
    if(name.trim().length<2){notify('Enter your full name (at least 2 characters).');return}
    if(!/^\+?[0-9]{10,15}$/.test(normalizedPhone)){notify('Enter a valid mobile number with 10–15 digits, including country code if needed.');return}
+   if(email.trim()&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())){notify('Enter a valid email address or leave it blank.');return}
    if(role==='Dealer'&&dealerName.trim().length<2){notify('Enter your dealership name (at least 2 characters).');return}
   }else{
    const identifier=email.trim();
